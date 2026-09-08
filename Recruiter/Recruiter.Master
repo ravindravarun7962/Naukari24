@@ -1,0 +1,919 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Recruiter.master.cs" Inherits="Success24_Job_Portal.Recruiter.Recruiter" %>
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head runat="server">
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        <asp:ContentPlaceHolder
+            ID="TitleContent"
+            runat="server">
+        </asp:ContentPlaceHolder>
+
+        - Recruiter Portal
+    </title>
+
+
+    <!-- Bootstrap Icons -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+            font-family:
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+            background: #f6f7fb;
+            color: #111827;
+        }
+
+
+        /* =========================================
+           LAYOUT
+        ========================================== */
+
+        .recruiter-layout {
+            min-height: 100vh;
+            display: flex;
+        }
+
+
+        /* =========================================
+           SIDEBAR
+        ========================================== */
+
+        .recruiter-sidebar {
+            width: 250px;
+            min-height: 100vh;
+
+            background: #111827;
+            color: #fff;
+
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            z-index: 1000;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .recruiter-brand {
+            height: 72px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 22px;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.08);
+        }
+
+
+        .recruiter-brand-icon {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #fff;
+            color: #111827;
+
+            font-size: 19px;
+            font-weight: 700;
+
+            margin-right: 11px;
+        }
+
+
+        .recruiter-brand-text {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+
+        .recruiter-brand-subtitle {
+            display: block;
+
+            font-size: 10px;
+            font-weight: 400;
+
+            color: #9ca3af;
+
+            margin-top: 2px;
+        }
+
+
+        /* =========================================
+           NAVIGATION
+        ========================================== */
+
+        .recruiter-nav {
+            padding: 20px 12px;
+
+            flex: 1;
+        }
+
+
+        .recruiter-nav-title {
+            padding:
+                0 12px
+                8px;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+            letter-spacing: 1px;
+
+            color: #6b7280;
+        }
+
+
+        .recruiter-nav-link {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            width: 100%;
+
+            padding: 11px 12px;
+
+            margin-bottom: 4px;
+
+            border-radius: 9px;
+
+            color: #d1d5db;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            transition:
+                background .2s ease,
+                color .2s ease;
+        }
+
+
+        .recruiter-nav-link i {
+            width: 20px;
+
+            text-align: center;
+
+            font-size: 17px;
+        }
+
+
+        .recruiter-nav-link:hover {
+            background:
+                rgba(255,255,255,.07);
+
+            color: #fff;
+        }
+
+
+        .recruiter-nav-link.active {
+            background: #fff;
+            color: #111827;
+            font-weight: 600;
+        }
+
+
+        /* =========================================
+           SIDEBAR FOOTER
+        ========================================== */
+
+        .recruiter-sidebar-footer {
+            padding: 15px;
+
+            border-top:
+                1px solid
+                rgba(255,255,255,.08);
+        }
+
+
+        .recruiter-user {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 9px;
+        }
+
+
+        .recruiter-user-avatar {
+            width: 36px;
+            height: 36px;
+
+            border-radius: 50%;
+
+            background: #374151;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 700;
+        }
+
+
+        .recruiter-user-info {
+            min-width: 0;
+        }
+
+
+        .recruiter-user-name {
+            display: block;
+
+            color: #fff;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        .recruiter-user-role {
+            display: block;
+
+            color: #9ca3af;
+
+            font-size: 11px;
+        }
+
+
+        /* =========================================
+           MAIN AREA
+        ========================================== */
+
+        .recruiter-main {
+            margin-left: 250px;
+
+            min-height: 100vh;
+
+            width: calc(100% - 250px);
+        }
+
+
+        /* =========================================
+           TOPBAR
+        ========================================== */
+
+        .recruiter-topbar {
+            height: 72px;
+
+            background: #fff;
+
+            border-bottom:
+                1px solid
+                #e5e7eb;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 28px;
+
+            position: sticky;
+            top: 0;
+
+            z-index: 900;
+        }
+
+
+        .recruiter-page-title {
+            font-size: 18px;
+            font-weight: 700;
+
+            color: #111827;
+        }
+
+
+        .recruiter-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+
+        .recruiter-notification {
+            width: 40px;
+            height: 40px;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 9px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #4b5563;
+
+            text-decoration: none;
+        }
+
+
+        .recruiter-profile {
+            display: flex;
+            align-items: center;
+
+            gap: 9px;
+
+            padding-left: 12px;
+
+            border-left:
+                1px solid
+                #e5e7eb;
+        }
+
+
+        .recruiter-profile-avatar {
+            width: 36px;
+            height: 36px;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #f3f4f6;
+
+            color: #374151;
+
+            font-weight: 700;
+        }
+
+
+        .recruiter-profile-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+
+        .recruiter-profile-role {
+            display: block;
+
+            font-size: 10px;
+
+            color: #9ca3af;
+        }
+
+
+        /* =========================================
+           PAGE CONTENT
+        ========================================== */
+
+        .recruiter-content {
+            padding: 0;
+        }
+
+
+        /* =========================================
+           MOBILE BUTTON
+        ========================================== */
+
+        .recruiter-menu-btn {
+            display: none;
+
+            border: 0;
+            background: transparent;
+
+            font-size: 23px;
+
+            cursor: pointer;
+
+            color: #111827;
+        }
+
+
+        /* =========================================
+           OVERLAY
+        ========================================== */
+
+        .recruiter-overlay {
+            display: none;
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================== */
+
+        @media (max-width: 900px) {
+
+            .recruiter-sidebar {
+                transform:
+                    translateX(-100%);
+
+                transition:
+                    transform .25s ease;
+            }
+
+
+            .recruiter-sidebar.open {
+                transform:
+                    translateX(0);
+            }
+
+
+            .recruiter-main {
+                margin-left: 0;
+
+                width: 100%;
+            }
+
+
+            .recruiter-menu-btn {
+                display: block;
+            }
+
+
+            .recruiter-overlay {
+                position: fixed;
+
+                inset: 0;
+
+                background:
+                    rgba(0,0,0,.4);
+
+                z-index: 950;
+            }
+
+
+            .recruiter-overlay.show {
+                display: block;
+            }
+
+
+            .recruiter-profile-name,
+            .recruiter-profile-role {
+                display: none;
+            }
+
+
+            .recruiter-topbar {
+                padding:
+                    0 16px;
+            }
+
+        }
+
+
+        @media (max-width: 500px) {
+
+            .recruiter-sidebar {
+                width: 270px;
+            }
+
+        }
+
+    </style>
+
+
+    <asp:ContentPlaceHolder
+        ID="head"
+        runat="server">
+    </asp:ContentPlaceHolder>
+
+</head>
+
+
+<body>
+
+<form
+    id="form1"
+    runat="server">
+
+
+    <!-- =========================================
+         SIDEBAR
+    ========================================== -->
+
+    <aside
+        id="recruiterSidebar" runat="server"
+        class="recruiter-sidebar">
+
+
+        <!-- BRAND -->
+
+        <div class="recruiter-brand">
+
+            <div class="recruiter-brand-icon">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
+
+            <div>
+
+                <div class="recruiter-brand-text">
+                    Naukari
+                </div>
+
+                <span class="recruiter-brand-subtitle">
+                    Recruiter Portal
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- NAV -->
+
+        <nav class="recruiter-nav">
+
+
+            <div class="recruiter-nav-title">
+                Recruitment
+            </div>
+
+
+            <a
+                href="<%= ResolveUrl("~/Recruiter/Dashboard.aspx") %>"
+                class="recruiter-nav-link">
+
+                <i class="bi bi-grid-1x2"></i>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <a
+                href="<%= ResolveUrl("~/Recruiter/Jobs.aspx") %>"
+                class="recruiter-nav-link">
+
+                <i class="bi bi-briefcase"></i>
+
+                <span>
+                    My Jobs
+                </span>
+
+            </a>
+
+
+            <a
+                href="<%= ResolveUrl("~/Recruiter/JobPost.aspx") %>"
+                class="recruiter-nav-link">
+
+                <i class="bi bi-plus-circle"></i>
+
+                <span>
+                    Post a Job
+                </span>
+
+            </a>
+
+
+            <a
+                href="<%= ResolveUrl("~/Recruiter/Applications.aspx") %>"
+                class="recruiter-nav-link">
+
+                <i class="bi bi-people"></i>
+
+                <span>
+                    Applications
+                </span>
+
+            </a>
+
+
+            <a
+                href="<%= ResolveUrl("~/Recruiter/CompanyProfile.aspx") %>"
+                class="recruiter-nav-link">
+
+                <i class="bi bi-building"></i>
+
+                <span>
+                    Company Profile
+                </span>
+
+            </a>
+
+
+            <div
+                class="recruiter-nav-title"
+                style="margin-top:22px;">
+
+                Account
+            </div>
+
+
+            <a
+                href="<%= ResolveUrl("~/Recruiter/Profile.aspx") %>"
+                class="recruiter-nav-link">
+
+                <i class="bi bi-person"></i>
+
+                <span>
+                    My Profile
+                </span>
+
+            </a>
+
+
+            <asp:LinkButton
+                ID="lnkLogout"
+                runat="server"
+                CssClass="recruiter-nav-link"
+                OnClick="lnkLogout_Click">
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                <span>
+                    Logout
+                </span>
+
+            </asp:LinkButton>
+
+
+        </nav>
+
+
+        <!-- SIDEBAR USER -->
+
+        <div class="recruiter-sidebar-footer">
+
+            <div class="recruiter-user">
+
+                <div class="recruiter-user-avatar">
+
+                    <asp:Label
+                        ID="lblUserInitial"
+                        runat="server"
+                        Text="R">
+                    </asp:Label>
+
+                </div>
+
+
+                <div class="recruiter-user-info">
+
+                    <span
+                        class="recruiter-user-name">
+
+                        <asp:Label
+                            ID="lblRecruiterName"
+                            runat="server"
+                            Text="Recruiter">
+                        </asp:Label>
+
+                    </span>
+
+
+                    <span
+                        class="recruiter-user-role">
+
+                        Recruiter
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- OVERLAY -->
+
+    <div
+        id="recruiterOverlay" runat="server"
+        class="recruiter-overlay">
+    </div>
+
+
+    <!-- =========================================
+         MAIN
+    ========================================== -->
+
+    <main id="recruiterMain" runat="server" class="recruiter-main">
+
+
+        <!-- TOPBAR -->
+
+        <header id="recruiterTopbar" class="recruiter-topbar" runat="server">
+
+
+            <div
+                style="display:flex;align-items:center;gap:12px;">
+
+
+                <button
+                    type="button"
+                    id="recruiterMenuBtn"
+                    class="recruiter-menu-btn">
+
+                    <i class="bi bi-list"></i>
+
+                </button>
+
+
+                <span
+                    class="recruiter-page-title">
+
+                    <asp:ContentPlaceHolder
+                        ID="PageTitle"
+                        runat="server">
+
+                        Recruiter Dashboard
+
+                    </asp:ContentPlaceHolder>
+
+                </span>
+
+            </div>
+
+
+            <div class="recruiter-topbar-right">
+
+
+                <a
+                    href="#"
+                    class="recruiter-notification"
+                    title="Notifications">
+
+                    <i class="bi bi-bell"></i>
+
+                </a>
+
+
+                <div class="recruiter-profile">
+
+                    <div class="recruiter-profile-avatar">
+
+                        <asp:Label
+                            ID="lblTopInitial"
+                            runat="server"
+                            Text="R">
+                        </asp:Label>
+
+                    </div>
+
+
+                    <div>
+
+                        <span
+                            class="recruiter-profile-name">
+
+                            <asp:Label
+                                ID="lblTopRecruiterName"
+                                runat="server"
+                                Text="Recruiter">
+                            </asp:Label>
+
+                        </span>
+
+
+                        <span
+                            class="recruiter-profile-role">
+
+                            Recruiter
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+
+        <div class="recruiter-content">
+
+            <asp:ContentPlaceHolder
+                ID="MainContent"
+                runat="server">
+            </asp:ContentPlaceHolder>
+
+        </div>
+
+
+    </main>
+
+
+    <!-- =========================================
+         JAVASCRIPT
+    ========================================== -->
+
+    <script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        var menuButton =
+            document.getElementById(
+                "recruiterMenuBtn"
+            );
+
+        var sidebar =
+            document.getElementById(
+                "recruiterSidebar"
+            );
+
+        var overlay =
+            document.getElementById(
+                "recruiterOverlay"
+            );
+
+
+        if (
+            menuButton &&
+            sidebar &&
+            overlay
+        ) {
+
+            menuButton.addEventListener(
+                "click",
+                function() {
+
+                    sidebar.classList.add(
+                        "open"
+                    );
+
+                    overlay.classList.add(
+                        "show"
+                    );
+
+                }
+            );
+
+
+            overlay.addEventListener(
+                "click",
+                function() {
+
+                    sidebar.classList.remove(
+                        "open"
+                    );
+
+                    overlay.classList.remove(
+                        "show"
+                    );
+
+                }
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+
+    <asp:ContentPlaceHolder
+        ID="ScriptsContent"
+        runat="server">
+    </asp:ContentPlaceHolder>
+
+
+</form>
+
+</body>
+
+</html>

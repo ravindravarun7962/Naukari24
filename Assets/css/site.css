@@ -1,0 +1,323 @@
+﻿/* =============================================
+   SUCCESS24 - GLOBAL
+============================================= */
+
+:root {
+    --primary: #2557a7;
+    --primary-dark: #17478f;
+    --secondary: #ff7555;
+    --dark: #111827;
+    --text: #374151;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --background: #f8fafc;
+    --white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    background: var(--background);
+    color: var(--text);
+    font-size: 15px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.page-content {
+    min-height: 70vh;
+}
+
+
+/* =============================================
+   HEADER
+============================================= */
+
+.main-header {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+}
+
+    .main-header .navbar {
+        min-height: 72px;
+        padding: 10px 0;
+    }
+
+
+/* =============================================
+   LOGO
+============================================= */
+
+.success-logo,
+.footer-logo {
+    display: inline-block;
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -1.3px;
+}
+
+.logo-success {
+    color: #172033;
+}
+
+.logo-24 {
+    color: var(--primary);
+}
+
+
+/* =============================================
+   NAVIGATION
+============================================= */
+
+.main-nav {
+    margin-left: 35px;
+    gap: 5px;
+}
+
+    .main-nav .nav-link {
+        color: #303846;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 10px 14px !important;
+        border-radius: 8px;
+        transition: 0.2s ease;
+    }
+
+        .main-nav .nav-link:hover {
+            color: var(--primary);
+            background: #f3f6fb;
+        }
+
+
+/* =============================================
+   DROPDOWN
+============================================= */
+
+.dropdown-menu {
+    border: 1px solid #edf0f4;
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 210px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+.dropdown-item {
+    padding: 10px 12px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+    .dropdown-item:hover {
+        background: #f3f6fb;
+        color: var(--primary);
+    }
+
+
+/* =============================================
+   NAVBAR BUTTONS
+============================================= */
+
+.nav-actions .btn {
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 19px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-login {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    background: white;
+}
+
+    .btn-login:hover {
+        background: #f4f7fc;
+        color: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+
+.btn-register {
+    background: var(--primary);
+    color: white;
+    border: 1px solid var(--primary);
+}
+
+    .btn-register:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        color: white;
+    }
+
+.btn-employer {
+    color: #333;
+    background: #fff7f4;
+    border: 1px solid #ffd9cf;
+}
+
+    .btn-employer:hover {
+        background: var(--secondary);
+        border-color: var(--secondary);
+        color: white;
+    }
+
+.employer-divider {
+    height: 30px;
+    width: 1px;
+    background: var(--border);
+    margin: 0 5px;
+}
+
+
+/* =============================================
+   FOOTER
+============================================= */
+
+.main-footer {
+    background: #111827;
+    color: #aeb6c4;
+    padding: 65px 0 0;
+    margin-top: 70px;
+}
+
+.footer-description {
+    max-width: 330px;
+    line-height: 1.8;
+    font-size: 14px;
+    margin-top: 17px;
+}
+
+.footer-title {
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    .footer-links li {
+        margin-bottom: 12px;
+    }
+
+    .footer-links a {
+        color: #aeb6c4;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+        .footer-links a:hover {
+            color: white;
+            padding-left: 3px;
+        }
+
+
+/* =============================================
+   SOCIAL
+============================================= */
+
+.social-links {
+    display: flex;
+    gap: 9px;
+    margin-top: 22px;
+}
+
+    .social-links a {
+        width: 37px;
+        height: 37px;
+        border-radius: 8px;
+        background: #1f2937;
+        color: #d4d8df;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+    }
+
+        .social-links a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+
+/* =============================================
+   FOOTER BOTTOM
+============================================= */
+
+.footer-bottom {
+    border-top: 1px solid #263142;
+    margin-top: 50px;
+    padding: 22px 0;
+    font-size: 13px;
+}
+
+
+/* =============================================
+   RESPONSIVE
+============================================= */
+
+@media (max-width: 991px) {
+
+    .main-header .navbar {
+        min-height: 65px;
+    }
+
+    .main-nav {
+        margin-left: 0;
+        margin-top: 15px;
+    }
+
+        .main-nav .nav-link {
+            padding: 11px 5px !important;
+        }
+
+    .nav-actions {
+        align-items: stretch !important;
+        flex-direction: column;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+    }
+
+        .nav-actions .btn {
+            width: 100%;
+        }
+
+    .navbar-collapse {
+        padding-bottom: 15px;
+    }
+}
+
+
+@media (max-width: 767px) {
+
+    .main-footer {
+        padding-top: 45px;
+    }
+
+    .footer-bottom {
+        text-align: center;
+    }
+}

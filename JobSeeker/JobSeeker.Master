@@ -1,0 +1,589 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="JobSeeker.master.cs" Inherits="Success24_Job_Portal.JobSeeker.JobSeeker" %>
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head runat="server">
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        <%: Page.Title %> | NAUKARI24
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+
+    <!-- Google Font -->
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin="anonymous" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet" />
+
+    <!-- Job Seeker CSS -->
+    <link href="<%= ResolveUrl("~/Assets/css/jobseeker.css") %>"
+          rel="stylesheet" />
+
+    <asp:ContentPlaceHolder
+        ID="head"
+        runat="server">
+    </asp:ContentPlaceHolder>
+
+</head>
+
+
+<body>
+
+<form id="form1" runat="server">
+
+
+    <!-- =============================================
+         TOP HEADER
+    ============================================== -->
+
+    <header class="dashboard-header">
+
+        <div class="container-fluid">
+
+            <div class="header-wrapper">
+
+
+                <!-- LEFT -->
+
+                <div class="header-left">
+
+                    <!-- Mobile Sidebar Button -->
+
+                    <button type="button"
+                            class="mobile-menu-btn"
+                            id="sidebarToggle">
+
+                        <i class="bi bi-list"></i>
+
+                    </button>
+
+
+                    <!-- LOGO -->
+
+                    <a href="<%= ResolveUrl("~/JobSeeker/Dashboard.aspx") %>"
+                       class="dashboard-logo">
+
+                        <span class="logo-text">
+                            NAUKARI
+                        </span><span class="logo-number">24</span>
+
+                    </a>
+
+                </div>
+
+
+
+                <!-- RIGHT -->
+
+                <div class="header-right">
+
+
+                    <!-- Find Jobs -->
+
+                    <a href="<%= ResolveUrl("~/Jobs.aspx") %>"
+                       class="find-job-btn">
+
+                        <i class="bi bi-search"></i>
+
+                        <span>
+                            Find Jobs
+                        </span>
+
+                    </a>
+
+
+
+                    <!-- NOTIFICATION -->
+
+                    <a href="<%= ResolveUrl("~/JobSeeker/Notifications.aspx") %>"
+                       class="notification-btn">
+
+                        <i class="bi bi-bell"></i>
+
+                        <asp:Label
+                            ID="lblNotificationCount"
+                            runat="server"
+                            CssClass="notification-count"
+                            Visible="false">
+                        </asp:Label>
+
+                    </a>
+
+
+
+                    <!-- USER DROPDOWN -->
+
+                    <div class="dropdown">
+
+                        <button type="button"
+                                class="user-dropdown"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+
+                            <div class="user-avatar">
+
+                                <asp:Label
+                                    ID="lblUserInitial"
+                                    runat="server">
+                                </asp:Label>
+
+                            </div>
+
+
+                            <div class="user-info d-none d-md-block">
+
+                                <strong>
+
+                                    <asp:Label
+                                        ID="lblUserName"
+                                        runat="server">
+                                    </asp:Label>
+
+                                </strong>
+
+                                <span>
+                                    Job Seeker
+                                </span>
+
+                            </div>
+
+
+                            <i class="bi bi-chevron-down dropdown-arrow"></i>
+
+                        </button>
+
+
+                        <ul class="dropdown-menu dropdown-menu-end profile-dropdown">
+
+                            <li class="dropdown-user-mobile d-md-none">
+
+                                <strong>
+
+                                    <asp:Label
+                                        ID="lblMobileUserName"
+                                        runat="server">
+                                    </asp:Label>
+
+                                </strong>
+
+                                <span>
+                                    Job Seeker
+                                </span>
+
+                            </li>
+
+
+                            <li class="d-md-none">
+
+                                <hr class="dropdown-divider" />
+
+                            </li>
+
+
+                            <li>
+
+                                <a class="dropdown-item"
+                                   href="<%= ResolveUrl("~/JobSeeker/Profile.aspx") %>">
+
+                                    <i class="bi bi-person"></i>
+
+                                    My Profile
+
+                                </a>
+
+                            </li>
+
+
+                            <li>
+
+                                <a class="dropdown-item"
+                                   href="<%= ResolveUrl("~/JobSeeker/EditProfile.aspx") %>">
+
+                                    <i class="bi bi-pencil-square"></i>
+
+                                    Edit Profile
+
+                                </a>
+
+                            </li>
+
+
+                            <li>
+
+                                <a class="dropdown-item"
+                                   href="<%= ResolveUrl("~/JobSeeker/Settings.aspx") %>">
+
+                                    <i class="bi bi-gear"></i>
+
+                                    Settings
+
+                                </a>
+
+                            </li>
+
+
+                            <li>
+
+                                <hr class="dropdown-divider" />
+
+                            </li>
+
+
+                            <li>
+
+                                <asp:LinkButton
+                                 ID="lnkLogout"
+                                 runat="server"
+                                 CssClass="recruiter-nav-link"
+                                 OnClick="lnkLogout_Click">
+
+                                 <i class="bi bi-box-arrow-right"></i>
+
+                                 <span>
+                                     Logout
+                                 </span>
+
+                             </asp:LinkButton>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =============================================
+         DASHBOARD LAYOUT
+    ============================================== -->
+
+    <div class="dashboard-layout">
+
+
+        <!-- =========================================
+             SIDEBAR
+        ========================================== -->
+
+        <aside class="dashboard-sidebar"
+               id="dashboardSidebar">
+
+
+            <div class="sidebar-inner">
+
+
+                <div class="sidebar-label">
+                    MAIN MENU
+                </div>
+
+
+                <!-- DASHBOARD -->
+
+                <a href="<%= ResolveUrl("~/JobSeeker/Dashboard.aspx") %>"
+                   class="sidebar-link">
+
+                    <i class="bi bi-grid"></i>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+
+                <!-- FIND JOBS -->
+
+                <a href="<%= ResolveUrl("~/Jobs.aspx") %>"
+                   class="sidebar-link">
+
+                    <i class="bi bi-search"></i>
+
+                    <span>
+                        Find Jobs
+                    </span>
+
+                </a>
+
+
+
+                <!-- APPLICATIONS -->
+
+                <a href="<%= ResolveUrl("~/JobSeeker/Applications.aspx") %>"
+                   class="sidebar-link">
+
+                    <i class="bi bi-send-check"></i>
+
+                    <span>
+                        My Applications
+                    </span>
+
+                </a>
+
+
+
+                <!-- SAVED JOBS -->
+
+                <a href="<%= ResolveUrl("~/JobSeeker/SavedJobs.aspx") %>"
+                   class="sidebar-link">
+
+                    <i class="bi bi-bookmark"></i>
+
+                    <span>
+                        Saved Jobs
+                    </span>
+
+                </a>
+
+
+
+                <!-- INTERVIEWS -->
+
+                <a href="<%= ResolveUrl("~/JobSeeker/Interviews.aspx") %>"
+                   class="sidebar-link">
+
+                    <i class="bi bi-calendar-event"></i>
+
+                    <span>
+                        Interviews
+                    </span>
+
+                </a>
+
+
+
+                <div class="sidebar-label sidebar-second-label">
+                    PROFILE
+                </div>
+
+
+
+                <!-- PROFILE -->
+
+                <a href="<%= ResolveUrl("~/JobSeeker/Profile.aspx") %>"
+                   class="sidebar-link">
+
+                    <i class="bi bi-person"></i>
+
+                    <span>
+                        My Profile
+                    </span>
+
+                </a>
+
+
+
+                <!-- RESUME -->
+
+                <a href="<%= ResolveUrl("~/JobSeeker/Resume.aspx") %>"
+                   class="sidebar-link">
+
+                    <i class="bi bi-file-earmark-person"></i>
+
+                    <span>
+                        Resume
+                    </span>
+
+                </a>
+
+
+
+                <!-- NOTIFICATIONS -->
+
+                <a href="<%= ResolveUrl("~/JobSeeker/Notifications.aspx") %>"
+                   class="sidebar-link">
+
+                    <i class="bi bi-bell"></i>
+
+                    <span>
+                        Notifications
+                    </span>
+
+                </a>
+
+
+
+                <!-- SETTINGS -->
+
+                <a href="<%= ResolveUrl("~/JobSeeker/Settings.aspx") %>"
+                   class="sidebar-link">
+
+                    <i class="bi bi-gear"></i>
+
+                    <span>
+                        Settings
+                    </span>
+
+                </a>
+
+
+            </div>
+
+
+            <!-- SIDEBAR BOTTOM -->
+
+            <div class="sidebar-bottom">
+
+                <div class="profile-completion-box">
+
+                    <div class="completion-title">
+
+                        <span>
+                            Profile Completion
+                        </span>
+
+                        <strong>
+
+                            <asp:Label
+                                ID="lblProfileCompletion"
+                                runat="server"
+                                Text="0%">
+                            </asp:Label>
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="progress completion-progress">
+
+                        <div id="profileProgressBar"
+                             runat="server"
+                             class="progress-bar"
+                             role="progressbar">
+                        </div>
+
+                    </div>
+
+
+                    <a href="<%= ResolveUrl("~/JobSeeker/EditProfile.aspx") %>">
+
+                        Complete Profile
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- SIDEBAR OVERLAY MOBILE -->
+
+        <div class="sidebar-overlay"
+             id="sidebarOverlay">
+        </div>
+
+
+
+        <!-- =========================================
+             MAIN CONTENT
+        ========================================== -->
+
+        <main class="dashboard-main">
+
+            <asp:ContentPlaceHolder
+                ID="MainContent"
+                runat="server">
+            </asp:ContentPlaceHolder>
+
+        </main>
+
+
+    </div>
+
+
+
+    <!-- Bootstrap JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+
+    <!-- Sidebar JS -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var toggle =
+                document.getElementById("sidebarToggle");
+
+            var sidebar =
+                document.getElementById("dashboardSidebar");
+
+            var overlay =
+                document.getElementById("sidebarOverlay");
+
+
+            if (toggle) {
+
+                toggle.addEventListener("click", function () {
+
+                    sidebar.classList.toggle("show");
+
+                    overlay.classList.toggle("show");
+
+                });
+
+            }
+
+
+            if (overlay) {
+
+                overlay.addEventListener("click", function () {
+
+                    sidebar.classList.remove("show");
+
+                    overlay.classList.remove("show");
+
+                });
+
+            }
+
+        });
+
+    </script>
+
+
+    <asp:ContentPlaceHolder
+        ID="ScriptsContent"
+        runat="server">
+    </asp:ContentPlaceHolder>
+
+
+</form>
+
+</body>
+
+</html>
