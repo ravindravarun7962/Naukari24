@@ -615,13 +615,14 @@
             <div class="table-wrapper">
 
 
-                <asp:GridView
-                    ID="gvApplications"
-                    runat="server"
-                    AutoGenerateColumns="False"
-                    CssClass="application-table"
-                    GridLines="None"
-                    OnRowCommand="gvApplications_RowCommand">
+              <asp:GridView
+            ID="gvApplications"
+            runat="server"
+            AutoGenerateColumns="False"
+            CssClass="application-table"
+            GridLines="None"
+            OnRowCommand="gvApplications_RowCommand"
+            OnRowDataBound="gvApplications_RowDataBound">
 
 
                     <Columns>
@@ -722,38 +723,62 @@
                             <ItemTemplate>
 
 
-                                <asp:DropDownList
-                                    ID="ddlApplicationStatus"
-                                    runat="server"
-                                    CssClass="status-dropdown"
-                                    SelectedValue='<%# Eval("ApplicationStatus") %>'>
+                               <asp:DropDownList
+                                ID="ddlStatus"
+                                runat="server"
+                                CssClass="form-control">
 
-                                    <asp:ListItem
-                                        Text="Pending"
-                                        Value="Pending">
-                                    </asp:ListItem>
+                                <asp:ListItem
+                                    Text="All Status"
+                                    Value="">
+                                </asp:ListItem>
 
-                                    <asp:ListItem
-                                        Text="Shortlisted"
-                                        Value="Shortlisted">
-                                    </asp:ListItem>
+                                <asp:ListItem
+                                    Text="Applied"
+                                    Value="Applied">
+                                </asp:ListItem>
 
-                                    <asp:ListItem
-                                        Text="Interview"
-                                        Value="Interview">
-                                    </asp:ListItem>
+                                <asp:ListItem
+                                    Text="Pending"
+                                    Value="Pending">
+                                </asp:ListItem>
 
-                                    <asp:ListItem
-                                        Text="Selected"
-                                        Value="Selected">
-                                    </asp:ListItem>
+                                <asp:ListItem
+                                    Text="Viewed"
+                                    Value="Viewed">
+                                </asp:ListItem>
 
-                                    <asp:ListItem
-                                        Text="Rejected"
-                                        Value="Rejected">
-                                    </asp:ListItem>
+                                <asp:ListItem
+                                    Text="Shortlisted"
+                                    Value="Shortlisted">
+                                </asp:ListItem>
 
-                                </asp:DropDownList>
+                                <asp:ListItem
+                                    Text="Interview"
+                                    Value="Interview">
+                                </asp:ListItem>
+
+                                <asp:ListItem
+                                    Text="Selected"
+                                    Value="Selected">
+                                </asp:ListItem>
+
+                                <asp:ListItem
+                                    Text="Hired"
+                                    Value="Hired">
+                                </asp:ListItem>
+
+                                <asp:ListItem
+                                    Text="Rejected"
+                                    Value="Rejected">
+                                </asp:ListItem>
+
+                                <asp:ListItem
+                                    Text="Withdrawn"
+                                    Value="Withdrawn">
+                                </asp:ListItem>
+
+                            </asp:DropDownList>
 
 
                                 <asp:LinkButton

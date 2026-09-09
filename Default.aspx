@@ -3,9 +3,10 @@
       <link href="<%= ResolveUrl("~/Assets/css/home.css") %>" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
-      <!-- ==========================================
+   
+    <!-- =========================================================
          HERO SECTION
-    =========================================== -->
+    ========================================================== -->
 
     <section class="hero-section">
 
@@ -22,10 +23,12 @@
                             Your career starts here
                         </span>
 
+
                         <h1>
                             Find the right job.
                             <span>Build your future.</span>
                         </h1>
+
 
                         <p class="hero-description">
                             Discover opportunities from trusted companies,
@@ -74,8 +77,7 @@
                                 runat="server"
                                 Text="Search Jobs"
                                 CssClass="btn search-btn"
-                                onclick="btnSearch_Click"
-                                 />
+                                OnClick="btnSearch_Click" />
 
                         </div>
 
@@ -173,10 +175,9 @@
     </section>
 
 
-
-    <!-- ==========================================
+    <!-- =========================================================
          STATS
-    =========================================== -->
+    ========================================================== -->
 
     <section class="stats-section">
 
@@ -194,6 +195,7 @@
 
                 </div>
 
+
                 <div class="stat-item">
 
                     <strong>5K+</strong>
@@ -204,6 +206,7 @@
 
                 </div>
 
+
                 <div class="stat-item">
 
                     <strong>50K+</strong>
@@ -213,6 +216,7 @@
                     </span>
 
                 </div>
+
 
                 <div class="stat-item">
 
@@ -231,10 +235,9 @@
     </section>
 
 
-
-    <!-- ==========================================
+    <!-- =========================================================
          POPULAR CATEGORIES
-    =========================================== -->
+    ========================================================== -->
 
     <section class="section-padding">
 
@@ -259,6 +262,7 @@
 
                 </div>
 
+
                 <a href="Jobs.aspx"
                    class="view-all-link">
 
@@ -272,9 +276,6 @@
 
 
             <div class="row g-4">
-
-
-                <!-- IT -->
 
                 <div class="col-xl-3 col-md-6">
 
@@ -292,7 +293,7 @@
                             </h3>
 
                             <p>
-                                2,450 Jobs
+                                Explore Jobs
                             </p>
 
                         </div>
@@ -303,8 +304,6 @@
 
                 </div>
 
-
-                <!-- SALES -->
 
                 <div class="col-xl-3 col-md-6">
 
@@ -322,7 +321,7 @@
                             </h3>
 
                             <p>
-                                1,820 Jobs
+                                Explore Jobs
                             </p>
 
                         </div>
@@ -333,8 +332,6 @@
 
                 </div>
 
-
-                <!-- MARKETING -->
 
                 <div class="col-xl-3 col-md-6">
 
@@ -352,7 +349,7 @@
                             </h3>
 
                             <p>
-                                1,240 Jobs
+                                Explore Jobs
                             </p>
 
                         </div>
@@ -363,8 +360,6 @@
 
                 </div>
 
-
-                <!-- FINANCE -->
 
                 <div class="col-xl-3 col-md-6">
 
@@ -382,7 +377,7 @@
                             </h3>
 
                             <p>
-                                950 Jobs
+                                Explore Jobs
                             </p>
 
                         </div>
@@ -393,8 +388,6 @@
 
                 </div>
 
-
-                <!-- HR -->
 
                 <div class="col-xl-3 col-md-6">
 
@@ -412,7 +405,7 @@
                             </h3>
 
                             <p>
-                                720 Jobs
+                                Explore Jobs
                             </p>
 
                         </div>
@@ -423,8 +416,6 @@
 
                 </div>
 
-
-                <!-- CUSTOMER SUPPORT -->
 
                 <div class="col-xl-3 col-md-6">
 
@@ -442,7 +433,7 @@
                             </h3>
 
                             <p>
-                                1,120 Jobs
+                                Explore Jobs
                             </p>
 
                         </div>
@@ -453,8 +444,6 @@
 
                 </div>
 
-
-                <!-- DESIGN -->
 
                 <div class="col-xl-3 col-md-6">
 
@@ -472,7 +461,7 @@
                             </h3>
 
                             <p>
-                                640 Jobs
+                                Explore Jobs
                             </p>
 
                         </div>
@@ -483,8 +472,6 @@
 
                 </div>
 
-
-                <!-- HEALTHCARE -->
 
                 <div class="col-xl-3 col-md-6">
 
@@ -502,7 +489,7 @@
                             </h3>
 
                             <p>
-                                880 Jobs
+                                Explore Jobs
                             </p>
 
                         </div>
@@ -520,10 +507,9 @@
     </section>
 
 
-
-    <!-- ==========================================
-         FEATURED JOBS
-    =========================================== -->
+    <!-- =========================================================
+         FEATURED JOBS - DYNAMIC
+    ========================================================== -->
 
     <section class="section-padding featured-jobs-section">
 
@@ -538,15 +524,16 @@
                     </span>
 
                     <h2>
-                        Featured Jobs
+                        Latest Jobs
                     </h2>
 
                     <p>
-                        Explore opportunities from companies
-                        actively hiring.
+                        Explore the latest opportunities posted by
+                        companies actively hiring.
                     </p>
 
                 </div>
+
 
                 <a href="Jobs.aspx"
                    class="view-all-link">
@@ -560,369 +547,224 @@
             </div>
 
 
+            <!-- DYNAMIC JOBS -->
+
             <div class="row g-4">
 
+                <asp:Repeater
+                    ID="rptFeaturedJobs"
+                    runat="server">
 
-                <!-- JOB 1 -->
+                    <ItemTemplate>
 
-                <div class="col-lg-6">
+                        <div class="col-lg-6">
 
-                    <div class="job-card">
+                            <div class="job-card">
 
-                        <div class="job-card-top">
+                                <div class="job-card-top">
 
-                            <div class="company-logo-box">
-                                M
-                            </div>
+                                    <!-- COMPANY INITIAL -->
 
-                            <div class="job-main-info">
+                                    <div class="company-logo-box">
 
-                                <div class="job-title-row">
+                                        <%# GetCompanyInitial(Eval("CompanyName")) %>
 
-                                    <h3>
-                                        Full Stack .NET Developer
-                                    </h3>
-
-                                    <button type="button"
-                                            class="save-job-btn">
-
-                                        <i class="bi bi-bookmark"></i>
-
-                                    </button>
-
-                                </div>
-
-                                <p class="company-name">
-                                    Microsoft Technologies
-                                </p>
-
-                            </div>
-
-                        </div>
+                                    </div>
 
 
-                        <div class="job-meta">
+                                    <div class="job-main-info">
 
-                            <span>
-                                <i class="bi bi-geo-alt"></i>
-                                Noida
-                            </span>
+                                        <div class="job-title-row">
 
-                            <span>
-                                <i class="bi bi-briefcase"></i>
-                                1-3 Years
-                            </span>
+                                            <h3>
 
-                            <span>
-                                <i class="bi bi-currency-rupee"></i>
-                                4-7 LPA
-                            </span>
+                                                <%# Server.HtmlEncode(
+                                                    Convert.ToString(
+                                                        Eval("JobTitle")
+                                                    )
+                                                ) %>
 
-                        </div>
+                                            </h3>
 
 
-                        <div class="job-skills">
+                                            <button
+                                                type="button"
+                                                class="save-job-btn">
 
-                            <span>C#</span>
-                            <span>ASP.NET</span>
-                            <span>SQL Server</span>
-                            <span>JavaScript</span>
+                                                <i class="bi bi-bookmark"></i>
 
-                        </div>
+                                            </button>
 
-
-                        <div class="job-card-bottom">
-
-                            <span class="posted-time">
-                                <i class="bi bi-clock"></i>
-                                2 hours ago
-                            </span>
-
-                            <a href="JobDetails.aspx?id=1"
-                               class="job-view-btn">
-
-                                View Job
-
-                                <i class="bi bi-arrow-right"></i>
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
+                                        </div>
 
 
-                <!-- JOB 2 -->
+                                        <p class="company-name">
 
-                <div class="col-lg-6">
+                                            <%# Server.HtmlEncode(
+                                                Convert.ToString(
+                                                    Eval("CompanyName")
+                                                )
+                                            ) %>
 
-                    <div class="job-card">
+                                        </p>
 
-                        <div class="job-card-top">
-
-                            <div class="company-logo-box">
-                                T
-                            </div>
-
-                            <div class="job-main-info">
-
-                                <div class="job-title-row">
-
-                                    <h3>
-                                        Software Engineer
-                                    </h3>
-
-                                    <button type="button"
-                                            class="save-job-btn">
-
-                                        <i class="bi bi-bookmark"></i>
-
-                                    </button>
+                                    </div>
 
                                 </div>
 
-                                <p class="company-name">
-                                    Tech Solutions Pvt. Ltd.
-                                </p>
 
-                            </div>
+                                <!-- META -->
 
-                        </div>
+                                <div class="job-meta">
 
+                                    <span>
 
-                        <div class="job-meta">
+                                        <i class="bi bi-geo-alt"></i>
 
-                            <span>
-                                <i class="bi bi-geo-alt"></i>
-                                Bengaluru
-                            </span>
+                                        <%# GetLocation(
+                                            Eval("City"),
+                                            Eval("State")
+                                        ) %>
 
-                            <span>
-                                <i class="bi bi-briefcase"></i>
-                                2-5 Years
-                            </span>
-
-                            <span>
-                                <i class="bi bi-currency-rupee"></i>
-                                6-10 LPA
-                            </span>
-
-                        </div>
+                                    </span>
 
 
-                        <div class="job-skills">
+                                    <span>
 
-                            <span>Java</span>
-                            <span>Spring Boot</span>
-                            <span>MySQL</span>
+                                        <i class="bi bi-briefcase"></i>
 
-                        </div>
+                                        <%# GetExperience(
+                                            Eval("MinExperienceMonths"),
+                                            Eval("MaxExperienceMonths")
+                                        ) %>
 
-
-                        <div class="job-card-bottom">
-
-                            <span class="posted-time">
-                                <i class="bi bi-clock"></i>
-                                5 hours ago
-                            </span>
-
-                            <a href="JobDetails.aspx?id=2"
-                               class="job-view-btn">
-
-                                View Job
-
-                                <i class="bi bi-arrow-right"></i>
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
+                                    </span>
 
 
-                <!-- JOB 3 -->
+                                    <asp:PlaceHolder
+                                        runat="server"
+                                        Visible='<%# Convert.ToBoolean(
+                                            Eval("SalaryVisible")
+                                        ) %>'>
 
-                <div class="col-lg-6">
+                                        <span>
 
-                    <div class="job-card">
+                                            <i class="bi bi-currency-rupee"></i>
 
-                        <div class="job-card-top">
+                                            <%# GetSalary(
+                                                Eval("MinSalary"),
+                                                Eval("MaxSalary")
+                                            ) %>
 
-                            <div class="company-logo-box">
-                                D
-                            </div>
+                                        </span>
 
-                            <div class="job-main-info">
-
-                                <div class="job-title-row">
-
-                                    <h3>
-                                        React Developer
-                                    </h3>
-
-                                    <button type="button"
-                                            class="save-job-btn">
-
-                                        <i class="bi bi-bookmark"></i>
-
-                                    </button>
+                                    </asp:PlaceHolder>
 
                                 </div>
 
-                                <p class="company-name">
-                                    Digital Systems
-                                </p>
 
-                            </div>
+                                <!-- SKILLS / CATEGORY -->
 
-                        </div>
+                                <div class="job-skills">
 
+                                    <span>
 
-                        <div class="job-meta">
+                                        <%# Server.HtmlEncode(
+                                            Convert.ToString(
+                                                Eval("CategoryName")
+                                            )
+                                        ) %>
 
-                            <span>
-                                <i class="bi bi-geo-alt"></i>
-                                Gurgaon
-                            </span>
-
-                            <span>
-                                <i class="bi bi-briefcase"></i>
-                                1-4 Years
-                            </span>
-
-                            <span>
-                                <i class="bi bi-currency-rupee"></i>
-                                5-9 LPA
-                            </span>
-
-                        </div>
+                                    </span>
 
 
-                        <div class="job-skills">
+                                    <span>
 
-                            <span>React</span>
-                            <span>JavaScript</span>
-                            <span>HTML</span>
-                            <span>CSS</span>
+                                        <%# Server.HtmlEncode(
+                                            Convert.ToString(
+                                                Eval("EmploymentType")
+                                            )
+                                        ) %>
 
-                        </div>
-
-
-                        <div class="job-card-bottom">
-
-                            <span class="posted-time">
-                                <i class="bi bi-clock"></i>
-                                1 day ago
-                            </span>
-
-                            <a href="JobDetails.aspx?id=3"
-                               class="job-view-btn">
-
-                                View Job
-
-                                <i class="bi bi-arrow-right"></i>
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
+                                    </span>
 
 
-                <!-- JOB 4 -->
+                                    <span>
 
-                <div class="col-lg-6">
+                                        <%# Server.HtmlEncode(
+                                            Convert.ToString(
+                                                Eval("WorkMode")
+                                            )
+                                        ) %>
 
-                    <div class="job-card">
-
-                        <div class="job-card-top">
-
-                            <div class="company-logo-box">
-                                S
-                            </div>
-
-                            <div class="job-main-info">
-
-                                <div class="job-title-row">
-
-                                    <h3>
-                                        Business Development Executive
-                                    </h3>
-
-                                    <button type="button"
-                                            class="save-job-btn">
-
-                                        <i class="bi bi-bookmark"></i>
-
-                                    </button>
+                                    </span>
 
                                 </div>
 
-                                <p class="company-name">
-                                    Success Enterprises
-                                </p>
+
+                                <!-- BOTTOM -->
+
+                                <div class="job-card-bottom">
+
+                                    <span class="posted-time">
+
+                                        <i class="bi bi-clock"></i>
+
+                                        <%# GetPostedDate(
+                                            Eval("CreatedAt")
+                                        ) %>
+
+                                    </span>
+
+
+                                    <a
+                                        href='<%# ResolveUrl(
+                                            "~/JobDetails.aspx?JobId="
+                                            + Eval("JobId")
+                                        ) %>'
+                                        class="job-view-btn">
+
+                                        View Job
+
+                                        <i class="bi bi-arrow-right"></i>
+
+                                    </a>
+
+                                </div>
 
                             </div>
 
                         </div>
 
+                    </ItemTemplate>
 
-                        <div class="job-meta">
-
-                            <span>
-                                <i class="bi bi-geo-alt"></i>
-                                Delhi
-                            </span>
-
-                            <span>
-                                <i class="bi bi-briefcase"></i>
-                                Fresher
-                            </span>
-
-                            <span>
-                                <i class="bi bi-currency-rupee"></i>
-                                3-5 LPA
-                            </span>
-
-                        </div>
+                </asp:Repeater>
 
 
-                        <div class="job-skills">
+                <!-- NO JOBS -->
 
-                            <span>Sales</span>
-                            <span>Communication</span>
-                            <span>CRM</span>
+                <asp:Panel
+                    ID="pnlNoFeaturedJobs"
+                    runat="server"
+                    Visible="false"
+                    CssClass="col-12">
 
-                        </div>
+                    <div class="dynamic-jobs-empty">
 
+                        <i class="bi bi-briefcase"></i>
 
-                        <div class="job-card-bottom">
+                        <h3>
+                            No jobs available right now
+                        </h3>
 
-                            <span class="posted-time">
-                                <i class="bi bi-clock"></i>
-                                1 day ago
-                            </span>
-
-                            <a href="JobDetails.aspx?id=4"
-                               class="job-view-btn">
-
-                                View Job
-
-                                <i class="bi bi-arrow-right"></i>
-
-                            </a>
-
-                        </div>
+                        <p>
+                            New opportunities will appear here when
+                            recruiters post jobs.
+                        </p>
 
                     </div>
 
-                </div>
+                </asp:Panel>
 
             </div>
 
@@ -931,10 +773,9 @@
     </section>
 
 
-
-    <!-- ==========================================
+    <!-- =========================================================
          TOP COMPANIES
-    =========================================== -->
+    ========================================================== -->
 
     <section class="section-padding">
 
@@ -957,6 +798,7 @@
                     </p>
 
                 </div>
+
 
                 <a href="Companies.aspx"
                    class="view-all-link">
@@ -987,7 +829,7 @@
                         </p>
 
                         <span>
-                            325 Open Jobs
+                            Explore Jobs
                         </span>
 
                     </div>
@@ -1010,7 +852,7 @@
                         </p>
 
                         <span>
-                            280 Open Jobs
+                            Explore Jobs
                         </span>
 
                     </div>
@@ -1033,7 +875,7 @@
                         </p>
 
                         <span>
-                            190 Open Jobs
+                            Explore Jobs
                         </span>
 
                     </div>
@@ -1056,7 +898,7 @@
                         </p>
 
                         <span>
-                            240 Open Jobs
+                            Explore Jobs
                         </span>
 
                     </div>
@@ -1070,10 +912,9 @@
     </section>
 
 
-
-    <!-- ==========================================
+    <!-- =========================================================
          JOBS BY LOCATION
-    =========================================== -->
+    ========================================================== -->
 
     <section class="section-padding location-section">
 
@@ -1105,7 +946,7 @@
 
                     <div>
                         <strong>Delhi</strong>
-                        <span>1,250 Jobs</span>
+                        <span>Explore Jobs</span>
                     </div>
 
                 </a>
@@ -1118,7 +959,7 @@
 
                     <div>
                         <strong>Noida</strong>
-                        <span>980 Jobs</span>
+                        <span>Explore Jobs</span>
                     </div>
 
                 </a>
@@ -1131,7 +972,7 @@
 
                     <div>
                         <strong>Gurgaon</strong>
-                        <span>1,120 Jobs</span>
+                        <span>Explore Jobs</span>
                     </div>
 
                 </a>
@@ -1144,7 +985,7 @@
 
                     <div>
                         <strong>Bengaluru</strong>
-                        <span>2,450 Jobs</span>
+                        <span>Explore Jobs</span>
                     </div>
 
                 </a>
@@ -1157,7 +998,7 @@
 
                     <div>
                         <strong>Hyderabad</strong>
-                        <span>1,560 Jobs</span>
+                        <span>Explore Jobs</span>
                     </div>
 
                 </a>
@@ -1170,7 +1011,7 @@
 
                     <div>
                         <strong>Pune</strong>
-                        <span>1,340 Jobs</span>
+                        <span>Explore Jobs</span>
                     </div>
 
                 </a>
@@ -1182,10 +1023,9 @@
     </section>
 
 
-
-    <!-- ==========================================
+    <!-- =========================================================
          HOW IT WORKS
-    =========================================== -->
+    ========================================================== -->
 
     <section class="section-padding how-it-works">
 
@@ -1321,10 +1161,9 @@
     </section>
 
 
-
-    <!-- ==========================================
+    <!-- =========================================================
          CTA
-    =========================================== -->
+    ========================================================== -->
 
     <section class="cta-section">
 
@@ -1360,6 +1199,7 @@
                         <i class="bi bi-arrow-right"></i>
 
                     </a>
+
 
                     <a href="Jobs.aspx"
                        class="btn browse-jobs-btn">

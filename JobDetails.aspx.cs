@@ -889,34 +889,94 @@ namespace Success24_Job_Portal
                 return;
             }
 
-
             if (Session["UserId"] == null)
             {
                 Response.Redirect(
-                    "~/Login.aspx?ReturnUrl="
-                    +
-                    Server.UrlEncode(
-                        Request.RawUrl
-                    )
+                    "~/Login.aspx?ReturnUrl=" +
+                    Server.UrlEncode(Request.RawUrl)
                 );
-
                 return;
             }
 
+            int userId;
 
-            /*
-             * Application functionality will be
-             * connected in the next step.
-             *
-             * For now we only verify that the
-             * logged-in JobSeeker can reach
-             * the Apply button.
-             */
+            if (!int.TryParse(Session["UserId"].ToString(), out userId))
+            {
+                Response.Redirect("~/Login.aspx");
+                return;
+            }
 
-            ShowMessage(
-                "Apply functionality will be available here.",
-                false
-            );
+            string connectionString =
+                ConfigurationManager.ConnectionStrings["Success24Connection"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+
+                // Check whether user already applied
+                string checkQuery = @"
+            SELECT COUNT(1)
+            FROM Applications
+            WHERE JobId = @JobId
+              AND JobSeekerId = @JobSeekerId";
+
+                using (SqlCommand checkCmd = new SqlCommand(checkQuery, con))
+                {
+                    checkCmd.Parameters.AddWithValue("@JobId", JobId);
+                    checkCmd.Parameters.AddWithValue("@JobSeekerId", userId);
+
+                    int alreadyApplied = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (alreadyApplied > 0)
+                    {
+                        ShowMessage(
+                            "You have already applied for this job.",
+                            false
+                        );
+                        return;
+                    }
+                }
+
+                // Insert application
+                string insertQuery = @"
+            INSERT INTO Applications
+            (
+                JobId,
+                JobSeekerId,
+                ApplicationStatus,
+                AppliedAt
+            )
+            VALUES
+            (
+                @JobId,
+                @JobSeekerId,
+                'Applied',
+                GETDATE()
+            )";
+
+                using (SqlCommand cmd = new SqlCommand(insertQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@JobId", JobId);
+                    cmd.Parameters.AddWithValue("@JobSeekerId", userId);
+
+                    int result = cmd.ExecuteNonQuery();
+
+                    if (result > 0)
+                    {
+                        ShowMessage(
+                            "Your application has been submitted successfully.",
+                            true
+                        );
+                    }
+                    else
+                    {
+                        ShowMessage(
+                            "Unable to submit your application. Please try again.",
+                            false
+                        );
+                    }
+                }
+            }
         }
     }
 }

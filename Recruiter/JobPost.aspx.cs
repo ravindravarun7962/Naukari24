@@ -10,7 +10,7 @@ using System.Web.UI.WebControls;
 
 namespace Success24_Job_Portal.Recruiter
 {
-    public partial class JobPost : System.Web.UI.Page
+    public partial class JobPost : Page
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["Success24Connection"].ConnectionString;
         protected void Page_Load(object sender, EventArgs e)

@@ -105,7 +105,7 @@ namespace Success24_Job_Portal.Recruiter
                 Session.Clear();
 
                 Response.Redirect(
-                    "~/Recruiter/Login.aspx"
+                    "~/Recruiter/RecruiterLogin.aspx"
                 );
 
                 return;
@@ -138,12 +138,14 @@ namespace Success24_Job_Portal.Recruiter
                 ).ToString();
 
 
-            // PENDING
+            // PENDING / NEW APPLICATIONS
+            //
+            // Applied + Pending are treated as pending/new
+            // applications for dashboard statistics.
 
             lblPending.Text =
-                GetApplicationCount(
-                    recruiterId,
-                    "Pending"
+                GetPendingApplicationCount(
+                    recruiterId
                 ).ToString();
 
 
@@ -223,6 +225,49 @@ namespace Success24_Job_Portal.Recruiter
             }
         }
 
+        // =========================================================
+        // GET PENDING / NEW APPLICATION COUNT
+        // =========================================================
+
+        private int GetPendingApplicationCount(
+            int recruiterId)
+        {
+            const string query = @"
+                SELECT COUNT(*)
+                FROM Applications A
+
+                INNER JOIN Jobs J
+                    ON A.JobId = J.JobId
+
+                WHERE J.RecruiterId = @RecruiterId
+
+                  AND
+                  (
+                      A.ApplicationStatus = 'Applied'
+                      OR A.ApplicationStatus = 'Pending'
+                  );
+            ";
+
+            using (
+                SqlConnection con =
+                    new SqlConnection(connectionString))
+            using (
+                SqlCommand cmd =
+                    new SqlCommand(query, con))
+            {
+                cmd.Parameters.Add(
+                    "@RecruiterId",
+                    SqlDbType.Int
+                ).Value = recruiterId;
+
+                con.Open();
+
+                return Convert.ToInt32(
+                    cmd.ExecuteScalar()
+                );
+            }
+        }
+
 
         // =========================================
         // LOAD APPLICATIONS
@@ -248,39 +293,25 @@ namespace Success24_Job_Portal.Recruiter
                 SELECT
 
                     A.ApplicationId,
-
                     A.JobId,
-
                     A.JobSeekerId,
-
                     A.ResumeId,
-
                     A.CoverLetter,
-
                     A.ApplicationStatus,
-
                     A.AppliedAt,
-
                     A.ViewedAt,
-
                     A.ShortlistedAt,
-
                     A.RejectedAt,
-
                     A.UpdatedAt,
 
                     J.JobTitle,
-
                     J.City AS JobCity,
-
                     J.State AS JobState,
 
                     C.CompanyName,
 
                     U.FullName,
-
                     U.Email,
-
                     U.Mobile
 
                 FROM Applications A
@@ -296,6 +327,7 @@ namespace Success24_Job_Portal.Recruiter
 
                 WHERE J.RecruiterId = @RecruiterId
             ";
+
 
 
             // =====================================
@@ -720,5 +752,69 @@ namespace Success24_Job_Portal.Recruiter
                     : "message error";
         }
 
+        protected void gvApplications_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            if (
+               e.Row.RowType !=
+               DataControlRowType.DataRow)
+            {
+                return;
+            }
+
+
+            DropDownList ddl =
+                e.Row.FindControl(
+                    "ddlApplicationStatus")
+                as DropDownList;
+
+
+            if (ddl == null)
+            {
+                return;
+            }
+
+
+            object value =
+                DataBinder.Eval(
+                    e.Row.DataItem,
+                    "ApplicationStatus"
+                );
+
+
+            string status =
+                value == null ||
+                value == DBNull.Value
+                    ? "Pending"
+                    : Convert.ToString(value).Trim();
+
+
+            // =====================================================
+            // CHECK WHETHER DATABASE STATUS EXISTS IN DROPDOWN
+            // =====================================================
+
+            ListItem item =
+                ddl.Items.FindByValue(status);
+
+
+            if (item != null)
+            {
+                ddl.ClearSelection();
+
+                item.Selected = true;
+            }
+            else
+            {
+                // Safe fallback
+                ListItem pendingItem =
+                    ddl.Items.FindByValue("Pending");
+
+                if (pendingItem != null)
+                {
+                    ddl.ClearSelection();
+
+                    pendingItem.Selected = true;
+                }
+            }
+        }
     }
 }

@@ -91,13 +91,16 @@
     <Content Include="Assets\css\jobseeker.css" />
     <Content Include="Assets\css\site.css" />
     <Content Include="Companies.aspx" />
+    <Content Include="Global.asax" />
     <Content Include="JobDetails.aspx" />
+    <Content Include="Jobs.aspx" />
     <Content Include="JobSeeker\Dashboard.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="JobSeekerRegister.aspx" />
     <Content Include="JobSeeker\EditProfile.aspx" />
     <Content Include="Recruiter\Applications.aspx" />
     <Content Include="Recruiter\CompanyProfile.aspx" />
+    <Content Include="Recruiter\JobDetails.aspx" />
     <Content Include="Recruiter\Jobs.aspx" />
     <Content Include="JobSeeker\Profile.aspx" />
     <Content Include="JobSeeker\Resume.aspx" />
@@ -118,12 +121,22 @@
     <Compile Include="Companies.aspx.designer.cs">
       <DependentUpon>Companies.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
     <Compile Include="JobDetails.aspx.cs">
       <DependentUpon>JobDetails.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="JobDetails.aspx.designer.cs">
       <DependentUpon>JobDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Jobs.aspx.cs">
+      <DependentUpon>Jobs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Jobs.aspx.designer.cs">
+      <DependentUpon>Jobs.aspx</DependentUpon>
     </Compile>
     <Compile Include="JobSeeker\Dashboard.aspx.cs">
       <DependentUpon>Dashboard.aspx</DependentUpon>
@@ -167,6 +180,13 @@
     </Compile>
     <Compile Include="Recruiter\CompanyProfile.aspx.designer.cs">
       <DependentUpon>CompanyProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Recruiter\JobDetails.aspx.cs">
+      <DependentUpon>JobDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Recruiter\JobDetails.aspx.designer.cs">
+      <DependentUpon>JobDetails.aspx</DependentUpon>
     </Compile>
     <Compile Include="Recruiter\Jobs.aspx.cs">
       <DependentUpon>Jobs.aspx</DependentUpon>
