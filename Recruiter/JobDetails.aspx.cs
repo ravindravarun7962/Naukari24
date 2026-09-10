@@ -94,7 +94,8 @@ namespace Success24_Job_Portal.Recruiter
                 LEFT JOIN JobCategories JC
                     ON J.CategoryId = JC.CategoryId
 
-                WHERE J.JobId = @JobId;";
+                WHERE J.JobId = @JobId
+                AND J.RecruiterId = @RecruiterId;";
 
 
             try
@@ -113,6 +114,22 @@ namespace Success24_Job_Portal.Recruiter
                         "@JobId",
                         SqlDbType.Int
                     ).Value = jobId;
+
+                    int recruiterId =
+                     Convert.ToInt32(
+                         Session["RecruiterId"]
+                     );
+
+                    if (recruiterId == 0)
+                    {
+                        ShowError("Recruiter profile not found.");
+                        return;
+                    }
+
+                    cmd.Parameters.Add(
+                        "@RecruiterId",
+                        SqlDbType.Int
+                    ).Value = recruiterId;
 
 
                     con.Open();
@@ -437,11 +454,16 @@ namespace Success24_Job_Portal.Recruiter
                         // EDIT LINK
                         // =================================
 
-                        lnkApply.NavigateUrl =
-                            ResolveUrl(
-                                "~/Recruiter/JobPost.aspx?JobId=" +
-                                jobId
-                            );
+                        lnkEditJob.NavigateUrl =
+                         ResolveUrl(
+                             "~/Recruiter/JobPost.aspx?JobId=" +
+                             jobId
+                         );
+                        lnkViewApplications.NavigateUrl =
+                        ResolveUrl(
+                            "~/Recruiter/Applications.aspx?JobId=" +
+                            jobId
+                        );
                     }
                 }
             }

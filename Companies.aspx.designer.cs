@@ -69,13 +69,13 @@ namespace Success24_Job_Portal
         protected global::System.Web.UI.WebControls.TextBox txtFoundedYear;
 
         /// <summary>
-        /// txtCompanyLogo control.
+        /// fuCompanyLogo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCompanyLogo;
+        protected global::System.Web.UI.WebControls.FileUpload fuCompanyLogo;
 
         /// <summary>
         /// txtDescription control.

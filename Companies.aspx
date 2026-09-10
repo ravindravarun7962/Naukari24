@@ -530,21 +530,23 @@
 
                 <!-- LOGO -->
 
-                <div class="form-group">
+              <div class="form-group">
 
-                    <label class="form-label">
-                        Company Logo URL
-                    </label>
+                <label class="form-label">
+                    Company Logo
+                </label>
 
-                    <asp:TextBox
-                        ID="txtCompanyLogo"
-                        runat="server"
-                        CssClass="form-control"
-                        MaxLength="500"
-                        placeholder="/uploads/company/logo.png">
-                    </asp:TextBox>
+                <asp:FileUpload
+                    ID="fuCompanyLogo"
+                    runat="server"
+                    CssClass="form-control"
+                    accept=".jpg,.jpeg,.png,.webp" />
 
-                </div>
+                <small class="text-muted">
+                    Allowed formats: JPG, JPEG, PNG, WEBP. Maximum size: 2 MB.
+                </small>
+
+            </div>
 
 
                 <!-- DESCRIPTION -->

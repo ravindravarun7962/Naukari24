@@ -269,21 +269,21 @@
                                     </span>
 
 
-                                    <a
-                                        href='<%# ResolveUrl(
-                                            "~/JobSeeker/JobDetails.aspx?JobId="
-                                            +
-                                            Convert.ToString(
-                                                Eval("JobId")
-                                            )
-                                        ) %>'
-                                        class="job-view-btn">
+                                   <a
+                                    href='<%# ResolveUrl(
+                                        "~/Recruiter/JobDetails.aspx?JobId="
+                                        +
+                                        Convert.ToString(
+                                            Eval("JobId")
+                                        )
+                                    ) %>'
+                                    class="job-view-btn">
 
-                                        View Details
+                                    View Details
 
-                                        <i class="bi bi-arrow-right"></i>
+                                    <i class="bi bi-arrow-right"></i>
 
-                                    </a>
+                                </a>
 
 
                                 </div>

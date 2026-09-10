@@ -1016,7 +1016,7 @@
                 <div class="job-card-header">
 
                     <h2>
-                        Application
+                        Manage Job
                     </h2>
 
                     <p>
@@ -1029,8 +1029,8 @@
                 <div class="apply-box">
 
 
-                    <asp:HyperLink
-                        ID="lnkApply"
+                   <asp:HyperLink
+                        ID="lnkEditJob"
                         runat="server"
                         CssClass="apply-button">
 
@@ -1038,6 +1038,13 @@
 
                         Edit Job
 
+                    </asp:HyperLink>
+
+                    <asp:HyperLink
+                        ID="lnkViewApplications"
+                        runat="server"
+                        CssClass="apply-button"
+                        Text="View Applications">
                     </asp:HyperLink>
 
 

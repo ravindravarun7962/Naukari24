@@ -20,6 +20,12 @@ namespace Success24_Job_Portal.Recruiter
                .ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["RecruiterId"] == null)
+            {
+                Response.Redirect("~/Recruiter/Login.aspx");
+                return;
+            }
+
             if (!IsPostBack)
             {
                 LoadJobs();
@@ -27,26 +33,31 @@ namespace Success24_Job_Portal.Recruiter
         }
 
         // =========================================
-        // LOAD JOBS
+        // LOAD RECRUITER JOBS
         // =========================================
 
         private void LoadJobs()
         {
-            string keyword =
-                txtKeyword.Text.Trim();
+            int recruiterId;
+
+            if (!int.TryParse(
+                Convert.ToString(Session["RecruiterId"]),
+                out recruiterId))
+            {
+                Response.Redirect("~/Recruiter/Login.aspx");
+                return;
+            }
 
 
-            string location =
-                txtLocation.Text.Trim();
+            string keyword = txtKeyword.Text.Trim();
 
+            string location = txtLocation.Text.Trim();
 
-            string orderBy =
-                GetOrderBy();
+            string orderBy = GetOrderBy();
 
 
             string query = @"
                 SELECT
-
                     J.JobId,
                     J.JobTitle,
 
@@ -63,6 +74,10 @@ namespace Success24_Job_Portal.Recruiter
 
                     J.CreatedAt,
 
+                    J.JobStatus,
+
+                    J.ApplicationDeadline,
+
                     C.CompanyName
 
                 FROM Jobs J
@@ -70,84 +85,58 @@ namespace Success24_Job_Portal.Recruiter
                 INNER JOIN Companies C
                     ON J.CompanyId = C.CompanyId
 
-                WHERE J.JobStatus = 'Active'
+                WHERE
+                    J.RecruiterId = @RecruiterId
 
-                AND C.IsActive = 1
+                    AND C.IsActive = 1
 
-                AND
-                (
-                    J.ApplicationDeadline IS NULL
+                    AND
+                    (
+                        @Keyword = ''
+                        OR J.JobTitle LIKE '%' + @Keyword + '%'
+                        OR C.CompanyName LIKE '%' + @Keyword + '%'
+                    )
 
-                    OR
+                    AND
+                    (
+                        @Location = ''
+                        OR J.City LIKE '%' + @Location + '%'
+                        OR J.State LIKE '%' + @Location + '%'
+                    )
 
-                    J.ApplicationDeadline >=
-                        CAST(GETDATE() AS DATE)
-                )
-
-                AND
-                (
-                    @Keyword = ''
-
-                    OR
-
-                    J.JobTitle LIKE
-                        '%' + @Keyword + '%'
-
-                    OR
-
-                    C.CompanyName LIKE
-                        '%' + @Keyword + '%'
-                )
-
-                AND
-                (
-                    @Location = ''
-
-                    OR
-
-                    J.City LIKE
-                        '%' + @Location + '%'
-
-                    OR
-
-                    J.State LIKE
-                        '%' + @Location + '%'
-                )
-
-                ORDER BY "
-                + orderBy;
+                ORDER BY " + orderBy;
 
 
-            DataTable dt =
-                new DataTable();
+            DataTable dt = new DataTable();
 
 
             try
             {
                 using (
                     SqlConnection con =
-                        new SqlConnection(
-                            connectionString))
+                        new SqlConnection(connectionString))
                 using (
                     SqlCommand cmd =
-                        new SqlCommand(
-                            query,
-                            con))
+                        new SqlCommand(query, con))
                 {
+                    cmd.Parameters.Add(
+                        "@RecruiterId",
+                        SqlDbType.Int
+                    ).Value = recruiterId;
+
+
                     cmd.Parameters.Add(
                         "@Keyword",
                         SqlDbType.NVarChar,
                         200
-                    ).Value =
-                        keyword;
+                    ).Value = keyword;
 
 
                     cmd.Parameters.Add(
                         "@Location",
                         SqlDbType.NVarChar,
                         200
-                    ).Value =
-                        location;
+                    ).Value = location;
 
 
                     using (
@@ -159,14 +148,12 @@ namespace Success24_Job_Portal.Recruiter
                 }
 
 
-                rptJobs.DataSource =
-                    dt;
+                rptJobs.DataSource = dt;
 
                 rptJobs.DataBind();
 
 
-                int count =
-                    dt.Rows.Count;
+                int count = dt.Rows.Count;
 
 
                 lblJobCount.Text =
@@ -175,32 +162,31 @@ namespace Success24_Job_Portal.Recruiter
                         : count + " jobs found";
 
 
-                pnlJobs.Visible =
-                    count > 0;
+                pnlJobs.Visible = count > 0;
 
-
-                pnlNoJobs.Visible =
-                    count == 0;
+                pnlNoJobs.Visible = count == 0;
             }
-            catch
+            catch (Exception)
             {
-                rptJobs.DataSource =
-                    null;
+                rptJobs.DataSource = null;
 
                 rptJobs.DataBind();
 
 
-                pnlJobs.Visible =
-                    false;
+                pnlJobs.Visible = false;
 
-                pnlNoJobs.Visible =
-                    true;
+                pnlNoJobs.Visible = true;
 
 
                 lblJobCount.Text =
                     "Unable to load jobs.";
+
+
+                // Optional:
+                // You can log ex here.
             }
         }
+
 
         // =========================================
         // SORT
@@ -208,14 +194,11 @@ namespace Success24_Job_Portal.Recruiter
 
         private string GetOrderBy()
         {
-            switch (
-                ddlSort.SelectedValue
-            )
+            switch (ddlSort.SelectedValue)
             {
                 case "oldest":
 
-                    return
-                        "J.CreatedAt ASC";
+                    return "J.CreatedAt ASC";
 
 
                 case "salary":
@@ -227,10 +210,10 @@ namespace Success24_Job_Portal.Recruiter
 
                 default:
 
-                    return
-                        "J.CreatedAt DESC";
+                    return "J.CreatedAt DESC";
             }
         }
+
 
         // =========================================
         // COMPANY INITIAL
@@ -240,24 +223,17 @@ namespace Success24_Job_Portal.Recruiter
             object companyName)
         {
             string name =
-                Convert.ToString(
-                    companyName
-                ).Trim();
+                Convert.ToString(companyName).Trim();
 
 
-            if (
-                string.IsNullOrWhiteSpace(
-                    name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 return "C";
             }
 
 
             return Server.HtmlEncode(
-                name.Substring(
-                    0,
-                    1
-                ).ToUpper()
+                name.Substring(0, 1).ToUpper()
             );
         }
 
@@ -271,23 +247,17 @@ namespace Success24_Job_Portal.Recruiter
             object state)
         {
             string cityText =
-                Convert.ToString(
-                    city
-                ).Trim();
+                Convert.ToString(city).Trim();
 
 
             string stateText =
-                Convert.ToString(
-                    state
-                ).Trim();
+                Convert.ToString(state).Trim();
 
 
             if (
-                !string.IsNullOrWhiteSpace(
-                    cityText)
+                !string.IsNullOrWhiteSpace(cityText)
                 &&
-                !string.IsNullOrWhiteSpace(
-                    stateText))
+                !string.IsNullOrWhiteSpace(stateText))
             {
                 return Server.HtmlEncode(
                     cityText +
@@ -298,8 +268,7 @@ namespace Success24_Job_Portal.Recruiter
 
 
             if (
-                !string.IsNullOrWhiteSpace(
-                    cityText))
+                !string.IsNullOrWhiteSpace(cityText))
             {
                 return Server.HtmlEncode(
                     cityText
@@ -308,8 +277,7 @@ namespace Success24_Job_Portal.Recruiter
 
 
             if (
-                !string.IsNullOrWhiteSpace(
-                    stateText))
+                !string.IsNullOrWhiteSpace(stateText))
             {
                 return Server.HtmlEncode(
                     stateText
@@ -533,9 +501,7 @@ namespace Success24_Job_Portal.Recruiter
 
 
             DateTime createdAt =
-                Convert.ToDateTime(
-                    dateValue
-                );
+                Convert.ToDateTime(dateValue);
 
 
             TimeSpan difference =
@@ -595,7 +561,7 @@ namespace Success24_Job_Portal.Recruiter
 
 
         // =========================================
-        // HELPERS
+        // INTEGER HELPER
         // =========================================
 
         private int GetInt(
@@ -614,9 +580,7 @@ namespace Success24_Job_Portal.Recruiter
 
             if (
                 int.TryParse(
-                    Convert.ToString(
-                        value
-                    ),
+                    Convert.ToString(value),
                     out result))
             {
                 return result;
@@ -626,6 +590,10 @@ namespace Success24_Job_Portal.Recruiter
             return 0;
         }
 
+
+        // =========================================
+        // DECIMAL HELPER
+        // =========================================
 
         private decimal GetDecimal(
             object value)
@@ -643,9 +611,7 @@ namespace Success24_Job_Portal.Recruiter
 
             if (
                 decimal.TryParse(
-                    Convert.ToString(
-                        value
-                    ),
+                    Convert.ToString(value),
                     out result))
             {
                 return result;
@@ -654,7 +620,7 @@ namespace Success24_Job_Portal.Recruiter
 
             return 0;
         }
-    
+
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {

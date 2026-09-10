@@ -336,6 +336,26 @@
             font-size: 13px;
         }
 
+        .status-viewed {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .status-interview {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-hired {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-withdrawn {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
         @media(max-width:1000px) {
 
             .stats-grid {
@@ -382,8 +402,12 @@
             <div>
 
                 <h1 class="page-title">
-                    Applications
-                </h1>
+                <asp:Label
+                    ID="lblPageTitle"
+                    runat="server"
+                    Text="Applications">
+                </asp:Label>
+            </h1>
 
                 <p class="page-description">
                     Review and manage applications
@@ -704,8 +728,7 @@
                             <ItemTemplate>
 
                                 <span
-                                    class='<%# GetStatusClass(Eval("ApplicationStatus")) %>'>
-
+                                    class='<%# GetStatusClass(Convert.ToString(Eval("ApplicationStatus"))) %>'>
                                     <%# Eval("ApplicationStatus") %>
 
                                 </span>
@@ -726,14 +749,9 @@
                                <asp:DropDownList
                                 ID="ddlStatus"
                                 runat="server"
-                                CssClass="form-control">
+                                CssClass="status-dropdown">
 
-                                <asp:ListItem
-                                    Text="All Status"
-                                    Value="">
-                                </asp:ListItem>
-
-                                <asp:ListItem
+                               <asp:ListItem
                                     Text="Applied"
                                     Value="Applied">
                                 </asp:ListItem>
@@ -798,6 +816,17 @@
 
                         </asp:TemplateField>
 
+                        <asp:TemplateField HeaderText="Action">
+                            <ItemTemplate>
+                                <asp:HyperLink
+                                    ID="lnkViewApplicant"
+                                    runat="server"
+                                    CssClass="update-btn"
+                                    Text="View"
+                                    NavigateUrl='<%# "~/Recruiter/ApplicantDetails.aspx?ApplicationId=" + Eval("ApplicationId") %>'>
+                                </asp:HyperLink>
+                            </ItemTemplate>
+                        </asp:TemplateField>
 
                     </Columns>
 

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
+using System.IO;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -172,7 +171,6 @@ namespace Success24_Job_Portal
         private void ClearForm()
         {
             txtCompanyName.Text = "";
-            txtCompanyLogo.Text = "";
             txtWebsite.Text = "";
             txtIndustry.Text = "";
 
@@ -214,10 +212,7 @@ namespace Success24_Job_Portal
             string companyName =
     txtCompanyName.Text.Trim();
 
-            string logo =
-                txtCompanyLogo.Text.Trim();
-
-            string website =
+           string website =
                 txtWebsite.Text.Trim();
 
             string industry =
@@ -282,6 +277,126 @@ namespace Success24_Job_Portal
                 }
             }
 
+            // =========================================
+            // LOGO UPLOAD
+            // =========================================
+
+            string logoPath = null;
+
+
+            if (fuCompanyLogo.HasFile)
+            {
+                string extension =
+                    Path.GetExtension(
+                        fuCompanyLogo.FileName
+                    ).ToLowerInvariant();
+
+
+                string[] allowedExtensions =
+                {
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".webp"
+                };
+
+
+                bool validExtension = false;
+
+
+                foreach (
+                    string allowedExtension
+                    in allowedExtensions)
+                {
+                    if (extension ==
+                        allowedExtension)
+                    {
+                        validExtension = true;
+                        break;
+                    }
+                }
+
+
+                if (!validExtension)
+                {
+                    ShowMessage(
+                        "Only JPG, JPEG, PNG and WEBP files are allowed.",
+                        false
+                    );
+
+                    return;
+                }
+
+
+                // =====================================
+                // MAX SIZE = 2 MB
+                // =====================================
+
+                if (
+                    fuCompanyLogo.PostedFile.ContentLength
+                    >
+                    2 * 1024 * 1024)
+                {
+                    ShowMessage(
+                        "Company logo must be less than 2 MB.",
+                        false
+                    );
+
+                    return;
+                }
+
+
+                // =====================================
+                // CREATE FOLDER
+                // =====================================
+
+                string folderPath =
+                    Server.MapPath(
+                        "~/Uploads/CompanyLogos/"
+                    );
+
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(
+                        folderPath
+                    );
+                }
+
+
+                // =====================================
+                // UNIQUE FILE NAME
+                // =====================================
+
+                string fileName =
+                    Guid.NewGuid().ToString("N")
+                    +
+                    extension;
+
+
+                string physicalPath =
+                    Path.Combine(
+                        folderPath,
+                        fileName
+                    );
+
+
+                // =====================================
+                // SAVE FILE
+                // =====================================
+
+                fuCompanyLogo.SaveAs(
+                    physicalPath
+                );
+
+
+                // Path saved in database
+
+                logoPath =
+                    "~/Uploads/CompanyLogos/"
+                    +
+                    fileName;
+            }
 
             try
             {
@@ -398,9 +513,9 @@ namespace Success24_Job_Portal
                         SqlDbType.NVarChar,
                         500
                     ).Value =
-                        string.IsNullOrWhiteSpace(logo)
+                        string.IsNullOrWhiteSpace(logoPath)
                             ? (object)DBNull.Value
-                            : logo;
+                            : logoPath;
 
 
                     cmd.Parameters.Add(

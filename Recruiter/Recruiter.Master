@@ -582,7 +582,7 @@
                 <i class="bi bi-briefcase"></i>
 
                 <span>
-                    My Jobs
+                    My Posted Jobs
                 </span>
 
             </a>
@@ -625,6 +625,18 @@
                 </span>
 
             </a>
+
+             <a
+                 href="<%= ResolveUrl("~/Companies.aspx") %>"
+                 class="recruiter-nav-link">
+
+                 <i class="bi-plus-circle"></i>
+
+                 <span>
+                    Add Company 
+                 </span>
+
+             </a>
 
 
             <div

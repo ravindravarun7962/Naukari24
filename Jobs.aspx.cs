@@ -8,8 +8,7 @@ namespace Success24_Job_Portal
 {
     public partial class Jobs : System.Web.UI.Page
     {
-        private readonly string connectionString =
-          ConfigurationManager.ConnectionStrings["Success24Connection"].ConnectionString;
+        private readonly string connectionString = ConfigurationManager.ConnectionStrings["Success24Connection"].ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -70,163 +69,151 @@ namespace Success24_Job_Portal
             string workMode = ddlWorkMode.SelectedValue;
             string experience = ddlExperience.SelectedValue;
 
-            string query = @"
-                SELECT
-                    J.JobId,
-                    J.JobTitle,
-                    J.EmploymentType,
-                    J.WorkMode,
-                    J.MinExperienceMonths,
-                    J.MaxExperienceMonths,
-                    J.MinSalary,
-                    J.MaxSalary,
-                    J.SalaryVisible,
-                    J.City,
-                    J.State,
-                    J.CreatedAt,
+            int categoryId = 0;
+            int experienceMonths = 0;
 
-                    C.CompanyName,
-
-                    JC.CategoryName
-
-                FROM Jobs J
-
-                INNER JOIN Companies C
-                    ON J.CompanyId = C.CompanyId
-
-                LEFT JOIN JobCategories JC
-                    ON J.CategoryId = JC.CategoryId
-
-                WHERE
-                    J.JobStatus = 'Active'
-
-                    AND C.IsActive = 1
-
-                    AND
-                    (
-                        J.ApplicationDeadline IS NULL
-                        OR
-                        J.ApplicationDeadline >= CAST(GETDATE() AS DATE)
-                    )
-
-                    AND
-                    (
-                        @Search = ''
-                        OR J.JobTitle LIKE '%' + @Search + '%'
-                        OR J.JobDescription LIKE '%' + @Search + '%'
-                        OR J.Requirements LIKE '%' + @Search + '%'
-                    )
-
-                    AND
-                    (
-                        @Location = ''
-                        OR J.City LIKE '%' + @Location + '%'
-                        OR J.State LIKE '%' + @Location + '%'
-                    )
-
-                    AND
-                    (
-                        @Category = ''
-                        OR J.CategoryId = @CategoryId
-                    )
-
-                    AND
-                    (
-                        @EmploymentType = ''
-                        OR J.EmploymentType = @EmploymentType
-                    )
-
-                    AND
-                    (
-                        @WorkMode = ''
-                        OR J.WorkMode = @WorkMode
-                    )
-
-                    AND
-                    (
-                        @Experience = ''
-                        OR J.MaxExperienceMonths >= @ExperienceMonths
-                    )
-
-                ORDER BY J.CreatedAt DESC";
-
-            using (SqlConnection con = new SqlConnection(connectionString))
-            using (SqlCommand cmd = new SqlCommand(query, con))
+            if (!string.IsNullOrEmpty(category))
             {
-                cmd.Parameters.Add(
-                    "@Search",
-                    SqlDbType.NVarChar,
-                    200
-                ).Value = search;
-
-                cmd.Parameters.Add(
-                    "@Location",
-                    SqlDbType.NVarChar,
-                    100
-                ).Value = location;
-
-                int categoryId = 0;
-
-                if (!string.IsNullOrEmpty(category))
-                    int.TryParse(category, out categoryId);
-
-                cmd.Parameters.Add(
-                    "@CategoryId",
-                    SqlDbType.Int
-                ).Value = categoryId;
-
-                cmd.Parameters.Add(
-                    "@Category",
-                    SqlDbType.NVarChar,
-                    20
-                ).Value = category;
-
-                cmd.Parameters.Add(
-                    "@EmploymentType",
-                    SqlDbType.NVarChar,
-                    50
-                ).Value = employmentType;
-
-                cmd.Parameters.Add(
-                    "@WorkMode",
-                    SqlDbType.NVarChar,
-                    50
-                ).Value = workMode;
-
-                int experienceMonths = 0;
-
-                if (!string.IsNullOrEmpty(experience))
-                    int.TryParse(experience, out experienceMonths);
-
-                cmd.Parameters.Add(
-                    "@ExperienceMonths",
-                    SqlDbType.Int
-                ).Value = experienceMonths;
-
-                cmd.Parameters.Add(
-                    "@Experience",
-                    SqlDbType.NVarChar,
-                    20
-                ).Value = experience;
-
-                DataTable dt = new DataTable();
-
-                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                {
-                    da.Fill(dt);
-                }
-
-                rptJobs.DataSource = dt;
-                rptJobs.DataBind();
-
-                lblResultCount.Text =
-                    dt.Rows.Count +
-                    (dt.Rows.Count == 1
-                        ? " job found"
-                        : " jobs found");
-
-                pnlNoJobs.Visible = dt.Rows.Count == 0;
+                int.TryParse(category, out categoryId);
             }
+
+            if (!string.IsNullOrEmpty(experience))
+            {
+                int.TryParse(experience, out experienceMonths);
+            }
+
+            string query = @"
+SELECT
+    J.JobId,
+    J.JobTitle,
+    J.EmploymentType,
+    J.WorkMode,
+    J.MinExperienceMonths,
+    J.MaxExperienceMonths,
+    J.MinSalary,
+    J.MaxSalary,
+    J.SalaryVisible,
+    J.City,
+    J.State,
+    J.CreatedAt,
+    C.CompanyName,
+    JC.CategoryName
+FROM Jobs J
+INNER JOIN Companies C
+    ON J.CompanyId = C.CompanyId
+LEFT JOIN JobCategories JC
+    ON J.CategoryId = JC.CategoryId
+WHERE
+    J.JobStatus = 'Active'
+    AND C.IsActive = 1
+    AND
+    (
+        J.ApplicationDeadline IS NULL
+        OR J.ApplicationDeadline >= CAST(GETDATE() AS DATE)
+    )
+    AND
+    (
+        @Search = ''
+        OR J.JobTitle LIKE '%' + @Search + '%'
+        OR J.JobDescription LIKE '%' + @Search + '%'
+        OR J.Requirements LIKE '%' + @Search + '%'
+        OR C.CompanyName LIKE '%' + @Search + '%'
+    )
+    AND
+    (
+        @Location = ''
+        OR J.City LIKE '%' + @Location + '%'
+        OR J.State LIKE '%' + @Location + '%'
+    )
+    AND
+    (
+        @CategoryId = 0
+        OR J.CategoryId = @CategoryId
+    )
+    AND
+    (
+        @EmploymentType = ''
+        OR J.EmploymentType = @EmploymentType
+    )
+    AND
+    (
+        @WorkMode = ''
+        OR J.WorkMode = @WorkMode
+    )
+    AND
+    (
+        @ExperienceMonths = 0
+        OR J.MaxExperienceMonths >= @ExperienceMonths
+    )
+ORDER BY J.CreatedAt DESC;";
+
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con =
+                new SqlConnection(connectionString))
+            {
+                using (SqlCommand cmd =
+                    new SqlCommand(query, con))
+                {
+                    cmd.Parameters.Add(
+                        "@Search",
+                        SqlDbType.NVarChar,
+                        200
+                    ).Value = search;
+
+                    cmd.Parameters.Add(
+                        "@Location",
+                        SqlDbType.NVarChar,
+                        100
+                    ).Value = location;
+
+                    cmd.Parameters.Add(
+                        "@CategoryId",
+                        SqlDbType.Int
+                    ).Value = categoryId;
+
+                    cmd.Parameters.Add(
+                        "@EmploymentType",
+                        SqlDbType.NVarChar,
+                        50
+                    ).Value = employmentType;
+
+                    cmd.Parameters.Add(
+                        "@WorkMode",
+                        SqlDbType.NVarChar,
+                        50
+                    ).Value = workMode;
+
+                    cmd.Parameters.Add(
+                        "@ExperienceMonths",
+                        SqlDbType.Int
+                    ).Value = experienceMonths;
+
+
+                    con.Open();
+
+                    using (SqlDataAdapter da =
+                        new SqlDataAdapter(cmd))
+                    {
+                        da.Fill(dt);
+                    }
+                }
+            }
+
+
+            rptJobs.DataSource = dt;
+            rptJobs.DataBind();
+
+
+            int count = dt.Rows.Count;
+
+            lblResultCount.Text =
+                count == 1
+                    ? "1 job found"
+                    : count + " jobs found";
+
+            pnlNoJobs.Visible = count == 0;
         }
 
         protected void btnSearch_Click(object sender, EventArgs e)

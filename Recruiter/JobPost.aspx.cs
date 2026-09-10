@@ -12,14 +12,200 @@ namespace Success24_Job_Portal.Recruiter
 {
     public partial class JobPost : Page
     {
+        private int JobId
+        {
+            get
+            {
+                int id;
+                return int.TryParse(Request.QueryString["JobId"], out id) ? id : 0;
+            }
+        }
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["Success24Connection"].ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
+            CheckRecruiter();
+
             if (!IsPostBack)
             {
-                CheckRecruiter();
                 LoadCompanies();
                 LoadCategories();
+                if (JobId > 0)
+                {
+                    LoadJobForEdit(JobId);
+                    btnPostJob.Text = "Update Job";
+                }
+                else
+                {
+                    btnPostJob.Text = "Post Job";
+                }
+            }
+        }
+
+        private void LoadJobForEdit(int jobId)
+        {
+            const string query = @"
+        SELECT
+            JobId,
+            CompanyId,
+            CategoryId,
+            JobTitle,
+            JobDescription,
+            Responsibilities,
+            Requirements,
+            EmploymentType,
+            WorkMode,
+            MinExperienceMonths,
+            MaxExperienceMonths,
+            MinSalary,
+            MaxSalary,
+            SalaryVisible,
+            City,
+            State,
+            NumberOfOpenings,
+            EducationRequirement,
+            ApplicationDeadline,
+            JobStatus,
+            IsFeatured
+        FROM Jobs
+        WHERE JobId = @JobId
+          AND RecruiterId = @RecruiterId;";
+
+            int recruiterId = GetRecruiterId();
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Parameters.Add("@JobId", SqlDbType.Int).Value = jobId;
+                cmd.Parameters.Add("@RecruiterId", SqlDbType.Int).Value = recruiterId;
+
+                con.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        ShowMessage("Job not found or you are not authorized to edit this job.", false);
+                        btnPostJob.Enabled = false;
+                        return;
+                    }
+
+                    // Company
+                    string companyId = Convert.ToString(reader["CompanyId"]);
+
+                    if (ddlCompany.Items.FindByValue(companyId) != null)
+                    {
+                        ddlCompany.SelectedValue = companyId;
+                    }
+
+                    // Category
+                    if (reader["CategoryId"] != DBNull.Value)
+                    {
+                        string categoryId = Convert.ToString(reader["CategoryId"]);
+
+                        if (ddlCategory.Items.FindByValue(categoryId) != null)
+                        {
+                            ddlCategory.SelectedValue = categoryId;
+                        }
+                    }
+
+                    // Basic information
+                    txtJobTitle.Text = Convert.ToString(reader["JobTitle"]);
+                    txtJobDescription.Text = Convert.ToString(reader["JobDescription"]);
+                    txtResponsibilities.Text = Convert.ToString(reader["Responsibilities"]);
+                    txtRequirements.Text = Convert.ToString(reader["Requirements"]);
+
+                    // Work details
+                    if (reader["EmploymentType"] != DBNull.Value)
+                    {
+                        string value = Convert.ToString(reader["EmploymentType"]);
+
+                        if (ddlEmploymentType.Items.FindByValue(value) != null)
+                            ddlEmploymentType.SelectedValue = value;
+                    }
+
+                    if (reader["WorkMode"] != DBNull.Value)
+                    {
+                        string value = Convert.ToString(reader["WorkMode"]);
+
+                        if (ddlWorkMode.Items.FindByValue(value) != null)
+                            ddlWorkMode.SelectedValue = value;
+                    }
+
+                    // Experience
+                    txtMinExperience.Text =
+                        reader["MinExperienceMonths"] == DBNull.Value
+                            ? ""
+                            : Convert.ToString(reader["MinExperienceMonths"]);
+
+                    txtMaxExperience.Text =
+                        reader["MaxExperienceMonths"] == DBNull.Value
+                            ? ""
+                            : Convert.ToString(reader["MaxExperienceMonths"]);
+
+                    // Salary
+                    txtMinSalary.Text =
+                        reader["MinSalary"] == DBNull.Value
+                            ? ""
+                            : Convert.ToString(reader["MinSalary"]);
+
+                    txtMaxSalary.Text =
+                        reader["MaxSalary"] == DBNull.Value
+                            ? ""
+                            : Convert.ToString(reader["MaxSalary"]);
+
+                    // Location
+                    txtCity.Text =
+                        reader["City"] == DBNull.Value
+                            ? ""
+                            : Convert.ToString(reader["City"]);
+
+                    txtState.Text =
+                        reader["State"] == DBNull.Value
+                            ? ""
+                            : Convert.ToString(reader["State"]);
+
+                    // Other details
+                    txtOpenings.Text =
+                        reader["NumberOfOpenings"] == DBNull.Value
+                            ? "1"
+                            : Convert.ToString(reader["NumberOfOpenings"]);
+
+                    txtEducation.Text =
+                        reader["EducationRequirement"] == DBNull.Value
+                            ? ""
+                            : Convert.ToString(reader["EducationRequirement"]);
+
+                    // Deadline
+                    if (reader["ApplicationDeadline"] != DBNull.Value)
+                    {
+                        DateTime deadline =
+                            Convert.ToDateTime(reader["ApplicationDeadline"]);
+
+                        txtDeadline.Text = deadline.ToString("yyyy-MM-dd");
+                    }
+                    else
+                    {
+                        txtDeadline.Text = "";
+                    }
+
+                    // Status
+                    string jobStatus =
+                        reader["JobStatus"] == DBNull.Value
+                            ? "Active"
+                            : Convert.ToString(reader["JobStatus"]);
+
+                    if (ddlJobStatus.Items.FindByValue(jobStatus) != null)
+                        ddlJobStatus.SelectedValue = jobStatus;
+
+                    // Checkboxes
+                    chkSalaryVisible.Checked =
+                        reader["SalaryVisible"] != DBNull.Value &&
+                        Convert.ToBoolean(reader["SalaryVisible"]);
+
+                    chkFeatured.Checked =
+                        reader["IsFeatured"] != DBNull.Value &&
+                        Convert.ToBoolean(reader["IsFeatured"]);
+                }
             }
         }
 
@@ -29,7 +215,7 @@ namespace Success24_Job_Portal.Recruiter
 
         private int GetRecruiterId()
         {
-            if (Session["UserId"] == null)
+            if (Session["RecruiterId"] == null)
             {
                 return 0;
             }
@@ -67,7 +253,7 @@ namespace Success24_Job_Portal.Recruiter
 
             if (recruiterId == 0)
             {
-                Response.Redirect("~/Login.aspx");
+                Response.Redirect("~/Recruiter/Login.aspx");
             }
         }
 
@@ -422,57 +608,317 @@ namespace Success24_Job_Portal.Recruiter
 
 
                 // ---------------------------------
-                // INSERT JOB
+                // INSERT / UPDATE JOB
                 // ---------------------------------
 
-                const string query = @"INSERT INTO Jobs (CompanyId,RecruiterId,CategoryId,JobTitle,JobDescription,Responsibilities,Requirements,EmploymentType,WorkMode,MinExperienceMonths,MaxExperienceMonths,MinSalary,MaxSalary,SalaryVisible,City,State,NumberOfOpenings,EducationRequirement,ApplicationDeadline,JobStatus,IsFeatured,CreatedAt,UpdatedAt) VALUES (@CompanyId,@RecruiterId,@CategoryId,@JobTitle,@JobDescription,@Responsibilities,@Requirements,@EmploymentType,@WorkMode,@MinExperienceMonths,@MaxExperienceMonths,@MinSalary,@MaxSalary,@SalaryVisible,@City,@State,@NumberOfOpenings,@EducationRequirement,@ApplicationDeadline,@JobStatus,@IsFeatured,SYSDATETIME(),SYSDATETIME());";
-                using (SqlConnection con = new SqlConnection(connectionString))
-                using (SqlCommand cmd = new SqlCommand(query,con))
+                if (JobId > 0)
                 {
-                    cmd.Parameters.Add("@CompanyId",SqlDbType.Int).Value = companyId;
-                    cmd.Parameters.Add("@RecruiterId",SqlDbType.Int).Value = recruiterId;
-                    cmd.Parameters.Add("@CategoryId",SqlDbType.Int).Value = categoryId.HasValue? (object)categoryId.Value: DBNull.Value;
-                    cmd.Parameters.Add("@JobTitle",SqlDbType.NVarChar,500).Value =jobTitle;
-                    cmd.Parameters.Add("@JobDescription",SqlDbType.NVarChar).Value =jobDescription;
-                    cmd.Parameters.Add("@Responsibilities",SqlDbType.NVarChar).Value =DbValue(txtResponsibilities.Text);
-                    cmd.Parameters.Add("@Requirements",SqlDbType.NVarChar).Value =DbValue(txtRequirements.Text);
-                    cmd.Parameters.Add("@EmploymentType",SqlDbType.NVarChar,100).Value =ddlEmploymentType.SelectedValue;
-                    cmd.Parameters.Add("@WorkMode",SqlDbType.NVarChar,100).Value =DbValue(ddlWorkMode.SelectedValue);
-                    cmd.Parameters.Add("@MinExperienceMonths",SqlDbType.Int).Value =minExperience.HasValue? (object)minExperience.Value: DBNull.Value;
-                    cmd.Parameters.Add("@MaxExperienceMonths",SqlDbType.Int).Value =maxExperience.HasValue? (object)maxExperience.Value: DBNull.Value;
-                    SqlParameter minSalaryParameter =cmd.Parameters.Add("@MinSalary",SqlDbType.Decimal);
-                    minSalaryParameter.Precision =12;
-                    minSalaryParameter.Scale =2;
-                    minSalaryParameter.Value =minSalary.HasValue? (object)minSalary.Value: DBNull.Value;
-                    SqlParameter maxSalaryParameter =cmd.Parameters.Add("@MaxSalary",SqlDbType.Decimal);
-                    maxSalaryParameter.Precision =12;
-                    maxSalaryParameter.Scale =2;
-                    maxSalaryParameter.Value =maxSalary.HasValue? (object)maxSalary.Value: DBNull.Value;
-                    cmd.Parameters.Add("@SalaryVisible",SqlDbType.Bit).Value =chkSalaryVisible.Checked;
-                    cmd.Parameters.Add("@City",SqlDbType.NVarChar,200).Value =DbValue(txtCity.Text);
-                    cmd.Parameters.Add("@State",SqlDbType.NVarChar,200).Value =DbValue(txtState.Text);
-                    cmd.Parameters.Add("@NumberOfOpenings",SqlDbType.Int).Value =openings;
-                    cmd.Parameters.Add("@EducationRequirement",SqlDbType.NVarChar,500).Value =DbValue(txtEducation.Text);
-                    cmd.Parameters.Add("@ApplicationDeadline",SqlDbType.Date).Value =deadline.HasValue? (object)deadline.Value.Date: DBNull.Value;
-                    cmd.Parameters.Add("@JobStatus",SqlDbType.NVarChar,50).Value =ddlJobStatus.SelectedValue;
-                    cmd.Parameters.Add("@IsFeatured",SqlDbType.Bit).Value =chkFeatured.Checked;
-                    con.Open();
-                    int rows =cmd.ExecuteNonQuery();
-                    if (rows > 0)
-                    {
-                        ShowMessage(
-                            "Job posted successfully.",
-                            true
-                        );
+                    // =========================================
+                    // UPDATE EXISTING JOB
+                    // =========================================
 
-                        ClearForm();
-                    }
-                    else
+                    const string query = @"
+        UPDATE Jobs
+        SET
+            CompanyId = @CompanyId,
+            CategoryId = @CategoryId,
+            JobTitle = @JobTitle,
+            JobDescription = @JobDescription,
+            Responsibilities = @Responsibilities,
+            Requirements = @Requirements,
+            EmploymentType = @EmploymentType,
+            WorkMode = @WorkMode,
+            MinExperienceMonths = @MinExperienceMonths,
+            MaxExperienceMonths = @MaxExperienceMonths,
+            MinSalary = @MinSalary,
+            MaxSalary = @MaxSalary,
+            SalaryVisible = @SalaryVisible,
+            City = @City,
+            State = @State,
+            NumberOfOpenings = @NumberOfOpenings,
+            EducationRequirement = @EducationRequirement,
+            ApplicationDeadline = @ApplicationDeadline,
+            JobStatus = @JobStatus,
+            IsFeatured = @IsFeatured,
+            UpdatedAt = SYSDATETIME()
+        WHERE JobId = @JobId
+          AND RecruiterId = @RecruiterId;";
+
+                    using (SqlConnection con = new SqlConnection(connectionString))
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
-                        ShowMessage(
-                            "Job could not be posted.",
-                            false
-                        );
+                        cmd.Parameters.Add("@JobId", SqlDbType.Int).Value = JobId;
+                        cmd.Parameters.Add("@RecruiterId", SqlDbType.Int).Value = recruiterId;
+
+                        cmd.Parameters.Add("@CompanyId", SqlDbType.Int).Value = companyId;
+
+                        cmd.Parameters.Add("@CategoryId", SqlDbType.Int).Value =
+                            categoryId.HasValue
+                                ? (object)categoryId.Value
+                                : DBNull.Value;
+
+                        cmd.Parameters.Add("@JobTitle", SqlDbType.NVarChar, 500).Value =
+                            jobTitle;
+
+                        cmd.Parameters.Add("@JobDescription", SqlDbType.NVarChar).Value =
+                            jobDescription;
+
+                        cmd.Parameters.Add("@Responsibilities", SqlDbType.NVarChar).Value =
+                            DbValue(txtResponsibilities.Text);
+
+                        cmd.Parameters.Add("@Requirements", SqlDbType.NVarChar).Value =
+                            DbValue(txtRequirements.Text);
+
+                        cmd.Parameters.Add("@EmploymentType", SqlDbType.NVarChar, 100).Value =
+                            ddlEmploymentType.SelectedValue;
+
+                        cmd.Parameters.Add("@WorkMode", SqlDbType.NVarChar, 100).Value =
+                            DbValue(ddlWorkMode.SelectedValue);
+
+                        cmd.Parameters.Add("@MinExperienceMonths", SqlDbType.Int).Value =
+                            minExperience.HasValue
+                                ? (object)minExperience.Value
+                                : DBNull.Value;
+
+                        cmd.Parameters.Add("@MaxExperienceMonths", SqlDbType.Int).Value =
+                            maxExperience.HasValue
+                                ? (object)maxExperience.Value
+                                : DBNull.Value;
+
+                        SqlParameter minSalaryParameter =
+                            cmd.Parameters.Add("@MinSalary", SqlDbType.Decimal);
+
+                        minSalaryParameter.Precision = 12;
+                        minSalaryParameter.Scale = 2;
+                        minSalaryParameter.Value =
+                            minSalary.HasValue
+                                ? (object)minSalary.Value
+                                : DBNull.Value;
+
+                        SqlParameter maxSalaryParameter =
+                            cmd.Parameters.Add("@MaxSalary", SqlDbType.Decimal);
+
+                        maxSalaryParameter.Precision = 12;
+                        maxSalaryParameter.Scale = 2;
+                        maxSalaryParameter.Value =
+                            maxSalary.HasValue
+                                ? (object)maxSalary.Value
+                                : DBNull.Value;
+
+                        cmd.Parameters.Add("@SalaryVisible", SqlDbType.Bit).Value =
+                            chkSalaryVisible.Checked;
+
+                        cmd.Parameters.Add("@City", SqlDbType.NVarChar, 200).Value =
+                            DbValue(txtCity.Text);
+
+                        cmd.Parameters.Add("@State", SqlDbType.NVarChar, 200).Value =
+                            DbValue(txtState.Text);
+
+                        cmd.Parameters.Add("@NumberOfOpenings", SqlDbType.Int).Value =
+                            openings;
+
+                        cmd.Parameters.Add("@EducationRequirement", SqlDbType.NVarChar, 500).Value =
+                            DbValue(txtEducation.Text);
+
+                        cmd.Parameters.Add("@ApplicationDeadline", SqlDbType.Date).Value =
+                            deadline.HasValue
+                                ? (object)deadline.Value.Date
+                                : DBNull.Value;
+
+                        cmd.Parameters.Add("@JobStatus", SqlDbType.NVarChar, 50).Value =
+                            ddlJobStatus.SelectedValue;
+
+                        cmd.Parameters.Add("@IsFeatured", SqlDbType.Bit).Value =
+                            chkFeatured.Checked;
+
+                        con.Open();
+
+                        int rows = cmd.ExecuteNonQuery();
+
+                        if (rows > 0)
+                        {
+                            ShowMessage(
+                                "Job updated successfully.",
+                                true
+                            );
+                        }
+                        else
+                        {
+                            ShowMessage(
+                                "Job could not be updated. You may not have permission to edit this job.",
+                                false
+                            );
+                        }
+                    }
+                }
+                else
+                {
+                    // =========================================
+                    // INSERT NEW JOB
+                    // =========================================
+
+                    const string query = @"
+        INSERT INTO Jobs
+        (
+            CompanyId,
+            RecruiterId,
+            CategoryId,
+            JobTitle,
+            JobDescription,
+            Responsibilities,
+            Requirements,
+            EmploymentType,
+            WorkMode,
+            MinExperienceMonths,
+            MaxExperienceMonths,
+            MinSalary,
+            MaxSalary,
+            SalaryVisible,
+            City,
+            State,
+            NumberOfOpenings,
+            EducationRequirement,
+            ApplicationDeadline,
+            JobStatus,
+            IsFeatured,
+            CreatedAt,
+            UpdatedAt
+        )
+        VALUES
+        (
+            @CompanyId,
+            @RecruiterId,
+            @CategoryId,
+            @JobTitle,
+            @JobDescription,
+            @Responsibilities,
+            @Requirements,
+            @EmploymentType,
+            @WorkMode,
+            @MinExperienceMonths,
+            @MaxExperienceMonths,
+            @MinSalary,
+            @MaxSalary,
+            @SalaryVisible,
+            @City,
+            @State,
+            @NumberOfOpenings,
+            @EducationRequirement,
+            @ApplicationDeadline,
+            @JobStatus,
+            @IsFeatured,
+            SYSDATETIME(),
+            SYSDATETIME()
+        );";
+
+                    using (SqlConnection con = new SqlConnection(connectionString))
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.Add("@CompanyId", SqlDbType.Int).Value =
+                            companyId;
+
+                        cmd.Parameters.Add("@RecruiterId", SqlDbType.Int).Value =
+                            recruiterId;
+
+                        cmd.Parameters.Add("@CategoryId", SqlDbType.Int).Value =
+                            categoryId.HasValue
+                                ? (object)categoryId.Value
+                                : DBNull.Value;
+
+                        cmd.Parameters.Add("@JobTitle", SqlDbType.NVarChar, 500).Value =
+                            jobTitle;
+
+                        cmd.Parameters.Add("@JobDescription", SqlDbType.NVarChar).Value =
+                            jobDescription;
+
+                        cmd.Parameters.Add("@Responsibilities", SqlDbType.NVarChar).Value =
+                            DbValue(txtResponsibilities.Text);
+
+                        cmd.Parameters.Add("@Requirements", SqlDbType.NVarChar).Value =
+                            DbValue(txtRequirements.Text);
+
+                        cmd.Parameters.Add("@EmploymentType", SqlDbType.NVarChar, 100).Value =
+                            ddlEmploymentType.SelectedValue;
+
+                        cmd.Parameters.Add("@WorkMode", SqlDbType.NVarChar, 100).Value =
+                            DbValue(ddlWorkMode.SelectedValue);
+
+                        cmd.Parameters.Add("@MinExperienceMonths", SqlDbType.Int).Value =
+                            minExperience.HasValue
+                                ? (object)minExperience.Value
+                                : DBNull.Value;
+
+                        cmd.Parameters.Add("@MaxExperienceMonths", SqlDbType.Int).Value =
+                            maxExperience.HasValue
+                                ? (object)maxExperience.Value
+                                : DBNull.Value;
+
+                        SqlParameter minSalaryParameter =
+                            cmd.Parameters.Add("@MinSalary", SqlDbType.Decimal);
+
+                        minSalaryParameter.Precision = 12;
+                        minSalaryParameter.Scale = 2;
+                        minSalaryParameter.Value =
+                            minSalary.HasValue
+                                ? (object)minSalary.Value
+                                : DBNull.Value;
+
+                        SqlParameter maxSalaryParameter =
+                            cmd.Parameters.Add("@MaxSalary", SqlDbType.Decimal);
+
+                        maxSalaryParameter.Precision = 12;
+                        maxSalaryParameter.Scale = 2;
+                        maxSalaryParameter.Value =
+                            maxSalary.HasValue
+                                ? (object)maxSalary.Value
+                                : DBNull.Value;
+
+                        cmd.Parameters.Add("@SalaryVisible", SqlDbType.Bit).Value =
+                            chkSalaryVisible.Checked;
+
+                        cmd.Parameters.Add("@City", SqlDbType.NVarChar, 200).Value =
+                            DbValue(txtCity.Text);
+
+                        cmd.Parameters.Add("@State", SqlDbType.NVarChar, 200).Value =
+                            DbValue(txtState.Text);
+
+                        cmd.Parameters.Add("@NumberOfOpenings", SqlDbType.Int).Value =
+                            openings;
+
+                        cmd.Parameters.Add("@EducationRequirement", SqlDbType.NVarChar, 500).Value =
+                            DbValue(txtEducation.Text);
+
+                        cmd.Parameters.Add("@ApplicationDeadline", SqlDbType.Date).Value =
+                            deadline.HasValue
+                                ? (object)deadline.Value.Date
+                                : DBNull.Value;
+
+                        cmd.Parameters.Add("@JobStatus", SqlDbType.NVarChar, 50).Value =
+                            ddlJobStatus.SelectedValue;
+
+                        cmd.Parameters.Add("@IsFeatured", SqlDbType.Bit).Value =
+                            chkFeatured.Checked;
+
+                        con.Open();
+
+                        int rows = cmd.ExecuteNonQuery();
+
+                        if (rows > 0)
+                        {
+                            ShowMessage(
+                                "Job posted successfully.",
+                                true
+                            );
+
+                            ClearForm();
+                        }
+                        else
+                        {
+                            ShowMessage(
+                                "Job could not be posted.",
+                                false
+                            );
+                        }
                     }
                 }
             }

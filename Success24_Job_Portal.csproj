@@ -98,6 +98,7 @@
     <Content Include="Default.aspx" />
     <Content Include="JobSeekerRegister.aspx" />
     <Content Include="JobSeeker\EditProfile.aspx" />
+    <Content Include="Recruiter\ApplicantDetails.aspx" />
     <Content Include="Recruiter\Applications.aspx" />
     <Content Include="Recruiter\CompanyProfile.aspx" />
     <Content Include="Recruiter\JobDetails.aspx" />
@@ -145,7 +146,6 @@
     <Compile Include="JobSeeker\Dashboard.aspx.designer.cs">
       <DependentUpon>Dashboard.aspx</DependentUpon>
     </Compile>
-    <Compile Include="DatabaseHelper.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -166,6 +166,13 @@
     </Compile>
     <Compile Include="JobSeeker\EditProfile.aspx.designer.cs">
       <DependentUpon>EditProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Recruiter\ApplicantDetails.aspx.cs">
+      <DependentUpon>ApplicantDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Recruiter\ApplicantDetails.aspx.designer.cs">
+      <DependentUpon>ApplicantDetails.aspx</DependentUpon>
     </Compile>
     <Compile Include="Recruiter\Applications.aspx.cs">
       <DependentUpon>Applications.aspx</DependentUpon>

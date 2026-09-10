@@ -11,7 +11,7 @@ namespace Success24_Job_Portal.Recruiter
 {
 
 
-    public partial class JobDetails
+    public partial class ApplicantDetails
     {
 
         /// <summary>
@@ -24,13 +24,58 @@ namespace Success24_Job_Portal.Recruiter
         protected global::System.Web.UI.WebControls.Label lblMessage;
 
         /// <summary>
-        /// lblCompanyInitial control.
+        /// lblInitial control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCompanyInitial;
+        protected global::System.Web.UI.WebControls.Label lblInitial;
+
+        /// <summary>
+        /// lblCandidateName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblCandidateName;
+
+        /// <summary>
+        /// lblEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblEmail;
+
+        /// <summary>
+        /// lblFullName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblFullName;
+
+        /// <summary>
+        /// lblCandidateEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblCandidateEmail;
+
+        /// <summary>
+        /// lblMobile control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblMobile;
 
         /// <summary>
         /// lblJobTitle control.
@@ -42,192 +87,156 @@ namespace Success24_Job_Portal.Recruiter
         protected global::System.Web.UI.WebControls.Label lblJobTitle;
 
         /// <summary>
-        /// lblCompanyName control.
+        /// lblCompany control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCompanyName;
+        protected global::System.Web.UI.WebControls.Label lblCompany;
 
         /// <summary>
-        /// lblCategory control.
+        /// lblStatus control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCategory;
+        protected global::System.Web.UI.WebControls.Label lblStatus;
 
         /// <summary>
-        /// pnlFeatured control.
+        /// lblAppliedDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlFeatured;
+        protected global::System.Web.UI.WebControls.Label lblAppliedDate;
 
         /// <summary>
-        /// lblLocation control.
+        /// pnlCoverLetter control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblLocation;
+        protected global::System.Web.UI.WebControls.Panel pnlCoverLetter;
 
         /// <summary>
-        /// lblEmploymentType control.
+        /// lblCoverLetter control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblEmploymentType;
+        protected global::System.Web.UI.WebControls.Label lblCoverLetter;
 
         /// <summary>
-        /// lblWorkMode control.
+        /// lblNoCoverLetter control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblWorkMode;
+        protected global::System.Web.UI.WebControls.Label lblNoCoverLetter;
 
         /// <summary>
-        /// lblExperience control.
+        /// lblResumeName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblExperience;
+        protected global::System.Web.UI.WebControls.Label lblResumeName;
 
         /// <summary>
-        /// lblSalary control.
+        /// lnkResume control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblSalary;
+        protected global::System.Web.UI.WebControls.HyperLink lnkResume;
 
         /// <summary>
-        /// lblJobDescription control.
+        /// lblAppliedTimeline control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblJobDescription;
+        protected global::System.Web.UI.WebControls.Label lblAppliedTimeline;
 
         /// <summary>
-        /// lblResponsibilities control.
+        /// pnlViewed control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblResponsibilities;
+        protected global::System.Web.UI.WebControls.Panel pnlViewed;
 
         /// <summary>
-        /// lblRequirements control.
+        /// lblViewedTimeline control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblRequirements;
+        protected global::System.Web.UI.WebControls.Label lblViewedTimeline;
 
         /// <summary>
-        /// lblEducation control.
+        /// pnlShortlisted control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblEducation;
+        protected global::System.Web.UI.WebControls.Panel pnlShortlisted;
 
         /// <summary>
-        /// lblOpenings control.
+        /// lblShortlistedTimeline control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblOpenings;
+        protected global::System.Web.UI.WebControls.Label lblShortlistedTimeline;
 
         /// <summary>
-        /// lblMinExperience control.
+        /// pnlRejected control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblMinExperience;
+        protected global::System.Web.UI.WebControls.Panel pnlRejected;
 
         /// <summary>
-        /// lblMaxExperience control.
+        /// lblRejectedTimeline control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblMaxExperience;
+        protected global::System.Web.UI.WebControls.Label lblRejectedTimeline;
 
         /// <summary>
-        /// lblCity control.
+        /// lblCurrentStatusTimeline control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCity;
+        protected global::System.Web.UI.WebControls.Label lblCurrentStatusTimeline;
 
         /// <summary>
-        /// lblState control.
+        /// lnkBack control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblState;
-
-        /// <summary>
-        /// lnkEditJob control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.HyperLink lnkEditJob;
-
-        /// <summary>
-        /// lnkViewApplications control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.HyperLink lnkViewApplications;
-
-        /// <summary>
-        /// lblDeadline control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblDeadline;
-
-        /// <summary>
-        /// lblJobStatus control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblJobStatus;
+        protected global::System.Web.UI.WebControls.HyperLink lnkBack;
     }
 }

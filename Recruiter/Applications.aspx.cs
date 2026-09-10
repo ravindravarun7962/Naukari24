@@ -10,21 +10,88 @@ using System.Web.UI.WebControls;
 
 namespace Success24_Job_Portal.Recruiter
 {
-    public partial class Applications : System.Web.UI.Page
+    public partial class Applications : Page
     {
-        private readonly string connectionString =
-            ConfigurationManager
-                .ConnectionStrings["Success24Connection"]
-                .ConnectionString;
+        private readonly string connectionString = ConfigurationManager.ConnectionStrings["Success24Connection"].ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
                 CheckRecruiter();
-
+                LoadJobHeader();
                 LoadStatistics();
 
                 LoadApplications();
+            }
+        }
+
+        private void LoadJobHeader()
+        {
+            int recruiterId =
+                Convert.ToInt32(
+                    Session["RecruiterId"]
+                );
+
+            int jobId = 0;
+
+            if (!string.IsNullOrWhiteSpace(
+                Request.QueryString["JobId"]))
+            {
+                int.TryParse(
+                    Request.QueryString["JobId"],
+                    out jobId
+                );
+            }
+
+            // Normal Applications page
+            if (jobId <= 0)
+            {
+                lblPageTitle.Text = "Applications";
+                return;
+            }
+
+            const string query = @"
+        SELECT J.JobTitle
+        FROM Jobs J
+        WHERE J.JobId = @JobId
+          AND J.RecruiterId = @RecruiterId;";
+
+            using (
+                SqlConnection con =
+                    new SqlConnection(connectionString))
+            using (
+                SqlCommand cmd =
+                    new SqlCommand(query, con))
+            {
+                cmd.Parameters.Add(
+                    "@JobId",
+                    SqlDbType.Int
+                ).Value = jobId;
+
+                cmd.Parameters.Add(
+                    "@RecruiterId",
+                    SqlDbType.Int
+                ).Value = recruiterId;
+
+                con.Open();
+
+                object result =
+                    cmd.ExecuteScalar();
+
+                if (result != null &&
+                    result != DBNull.Value)
+                {
+                    lblPageTitle.Text =
+                        "Applications for: " +
+                        Server.HtmlEncode(
+                            Convert.ToString(result)
+                        );
+                }
+                else
+                {
+                    lblPageTitle.Text =
+                        "Applications";
+                }
             }
         }
 
@@ -105,7 +172,7 @@ namespace Success24_Job_Portal.Recruiter
                 Session.Clear();
 
                 Response.Redirect(
-                    "~/Recruiter/RecruiterLogin.aspx"
+                    "~/Recruiter/Login.aspx"
                 );
 
                 return;
@@ -128,41 +195,61 @@ namespace Success24_Job_Portal.Recruiter
                     Session["RecruiterId"]
                 );
 
+            // =====================================
+            // GET JOB ID FROM URL
+            // =====================================
 
-            // TOTAL
+            int jobId = 0;
+
+            if (!string.IsNullOrWhiteSpace(Request.QueryString["JobId"]))
+            {
+                int.TryParse(
+                    Request.QueryString["JobId"],
+                    out jobId
+                );
+            }
+
+            // =====================================
+            // TOTAL APPLICATIONS
+            // =====================================
 
             lblTotalApplications.Text =
                 GetApplicationCount(
                     recruiterId,
+                    jobId,
                     ""
                 ).ToString();
 
-
+            // =====================================
             // PENDING / NEW APPLICATIONS
-            //
-            // Applied + Pending are treated as pending/new
-            // applications for dashboard statistics.
+            // Applied + Pending
+            // =====================================
 
             lblPending.Text =
                 GetPendingApplicationCount(
-                    recruiterId
+                    recruiterId,
+                    jobId
                 ).ToString();
 
-
+            // =====================================
             // SHORTLISTED
+            // =====================================
 
             lblShortlisted.Text =
                 GetApplicationCount(
                     recruiterId,
+                    jobId,
                     "Shortlisted"
                 ).ToString();
 
-
+            // =====================================
             // SELECTED
+            // =====================================
 
             lblSelected.Text =
                 GetApplicationCount(
                     recruiterId,
+                    jobId,
                     "Selected"
                 ).ToString();
         }
@@ -170,25 +257,38 @@ namespace Success24_Job_Portal.Recruiter
 
         private int GetApplicationCount(
             int recruiterId,
+            int jobId,
             string status)
         {
             string query = @"
-                SELECT COUNT(*)
-                FROM Applications A
+        SELECT COUNT(*)
+        FROM Applications A
 
-                INNER JOIN Jobs J
-                    ON A.JobId = J.JobId
+        INNER JOIN Jobs J
+            ON A.JobId = J.JobId
 
-                WHERE J.RecruiterId = @RecruiterId
-            ";
+        WHERE J.RecruiterId = @RecruiterId
+    ";
 
+            // =====================================
+            // JOB FILTER
+            // =====================================
+
+            if (jobId > 0)
+            {
+                query += @"
+            AND A.JobId = @JobId";
+            }
+
+            // =====================================
+            // STATUS FILTER
+            // =====================================
 
             if (!string.IsNullOrWhiteSpace(status))
             {
                 query += @"
-                    AND A.ApplicationStatus = @Status";
+            AND A.ApplicationStatus = @Status";
             }
-
 
             using (
                 SqlConnection con =
@@ -205,6 +305,21 @@ namespace Success24_Job_Portal.Recruiter
                     SqlDbType.Int
                 ).Value = recruiterId;
 
+                // =====================================
+                // JOB ID PARAMETER
+                // =====================================
+
+                if (jobId > 0)
+                {
+                    cmd.Parameters.Add(
+                        "@JobId",
+                        SqlDbType.Int
+                    ).Value = jobId;
+                }
+
+                // =====================================
+                // STATUS PARAMETER
+                // =====================================
 
                 if (!string.IsNullOrWhiteSpace(status))
                 {
@@ -215,51 +330,74 @@ namespace Success24_Job_Portal.Recruiter
                     ).Value = status;
                 }
 
-
                 con.Open();
-
 
                 return Convert.ToInt32(
                     cmd.ExecuteScalar()
                 );
             }
         }
-
         // =========================================================
         // GET PENDING / NEW APPLICATION COUNT
         // =========================================================
 
         private int GetPendingApplicationCount(
-            int recruiterId)
+     int recruiterId,
+     int jobId)
         {
-            const string query = @"
-                SELECT COUNT(*)
-                FROM Applications A
+            string query = @"
+        SELECT COUNT(*)
+        FROM Applications A
 
-                INNER JOIN Jobs J
-                    ON A.JobId = J.JobId
+        INNER JOIN Jobs J
+            ON A.JobId = J.JobId
 
-                WHERE J.RecruiterId = @RecruiterId
+        WHERE J.RecruiterId = @RecruiterId
 
-                  AND
-                  (
-                      A.ApplicationStatus = 'Applied'
-                      OR A.ApplicationStatus = 'Pending'
-                  );
-            ";
+        AND
+        (
+            A.ApplicationStatus = 'Applied'
+            OR A.ApplicationStatus = 'Pending'
+        )
+    ";
+
+            // =====================================
+            // JOB FILTER
+            // =====================================
+
+            if (jobId > 0)
+            {
+                query += @"
+            AND A.JobId = @JobId";
+            }
 
             using (
                 SqlConnection con =
-                    new SqlConnection(connectionString))
+                    new SqlConnection(
+                        connectionString))
             using (
                 SqlCommand cmd =
-                    new SqlCommand(query, con))
+                    new SqlCommand(
+                        query,
+                        con))
             {
                 cmd.Parameters.Add(
                     "@RecruiterId",
                     SqlDbType.Int
                 ).Value = recruiterId;
 
+                // =====================================
+                // JOB ID PARAMETER
+                // =====================================
+
+                if (jobId > 0)
+                {
+                    cmd.Parameters.Add(
+                        "@JobId",
+                        SqlDbType.Int
+                    ).Value = jobId;
+                }
+
                 con.Open();
 
                 return Convert.ToInt32(
@@ -267,7 +405,6 @@ namespace Success24_Job_Portal.Recruiter
                 );
             }
         }
-
 
         // =========================================
         // LOAD APPLICATIONS
@@ -280,55 +417,74 @@ namespace Success24_Job_Portal.Recruiter
                     Session["RecruiterId"]
                 );
 
-
             string search =
                 txtSearch.Text.Trim();
-
 
             string status =
                 ddlStatus.SelectedValue;
 
+            // =====================================
+            // GET JOB ID FROM URL
+            // =====================================
+
+            int jobId = 0;
+
+            if (!string.IsNullOrWhiteSpace(Request.QueryString["JobId"]))
+            {
+                int.TryParse(
+                    Request.QueryString["JobId"],
+                    out jobId
+                );
+            }
 
             string query = @"
-                SELECT
+        SELECT
 
-                    A.ApplicationId,
-                    A.JobId,
-                    A.JobSeekerId,
-                    A.ResumeId,
-                    A.CoverLetter,
-                    A.ApplicationStatus,
-                    A.AppliedAt,
-                    A.ViewedAt,
-                    A.ShortlistedAt,
-                    A.RejectedAt,
-                    A.UpdatedAt,
+            A.ApplicationId,
+            A.JobId,
+            A.JobSeekerId,
+            A.ResumeId,
+            A.CoverLetter,
+            A.ApplicationStatus,
+            A.AppliedAt,
+            A.ViewedAt,
+            A.ShortlistedAt,
+            A.RejectedAt,
+            A.UpdatedAt,
 
-                    J.JobTitle,
-                    J.City AS JobCity,
-                    J.State AS JobState,
+            J.JobTitle,
+            J.City AS JobCity,
+            J.State AS JobState,
 
-                    C.CompanyName,
+            C.CompanyName,
 
-                    U.FullName,
-                    U.Email,
-                    U.Mobile
+            U.FullName,
+            U.Email,
+            U.Mobile
 
-                FROM Applications A
+        FROM Applications A
 
-                INNER JOIN Jobs J
-                    ON A.JobId = J.JobId
+        INNER JOIN Jobs J
+            ON A.JobId = J.JobId
 
-                INNER JOIN Companies C
-                    ON J.CompanyId = C.CompanyId
+        INNER JOIN Companies C
+            ON J.CompanyId = C.CompanyId
 
-                INNER JOIN Users U
-                    ON A.JobSeekerId = U.UserId
+        INNER JOIN Users U
+            ON A.JobSeekerId = U.UserId
 
-                WHERE J.RecruiterId = @RecruiterId
-            ";
+        WHERE J.RecruiterId = @RecruiterId
+    ";
 
+            // =====================================
+            // JOB FILTER
+            // =====================================
 
+            if (jobId > 0)
+            {
+                query += @"
+            AND A.JobId = @JobId";
+            }
 
             // =====================================
             // STATUS FILTER
@@ -337,9 +493,8 @@ namespace Success24_Job_Portal.Recruiter
             if (!string.IsNullOrWhiteSpace(status))
             {
                 query += @"
-                    AND A.ApplicationStatus = @Status";
+            AND A.ApplicationStatus = @Status";
             }
-
 
             // =====================================
             // SEARCH
@@ -348,20 +503,18 @@ namespace Success24_Job_Portal.Recruiter
             if (!string.IsNullOrWhiteSpace(search))
             {
                 query += @"
-                    AND
-                    (
-                        U.FullName LIKE @Search
-                        OR U.Email LIKE @Search
-                        OR J.JobTitle LIKE @Search
-                        OR C.CompanyName LIKE @Search
-                    )";
+            AND
+            (
+                U.FullName LIKE @Search
+                OR U.Email LIKE @Search
+                OR J.JobTitle LIKE @Search
+                OR C.CompanyName LIKE @Search
+            )";
             }
 
-
             query += @"
-                ORDER BY
-                    A.AppliedAt DESC;";
-
+        ORDER BY
+            A.AppliedAt DESC;";
 
             using (
                 SqlConnection con =
@@ -373,11 +526,32 @@ namespace Success24_Job_Portal.Recruiter
                         query,
                         con))
             {
+                // =====================================
+                // RECRUITER
+                // =====================================
+
                 cmd.Parameters.Add(
                     "@RecruiterId",
                     SqlDbType.Int
                 ).Value = recruiterId;
 
+
+                // =====================================
+                // JOB ID
+                // =====================================
+
+                if (jobId > 0)
+                {
+                    cmd.Parameters.Add(
+                        "@JobId",
+                        SqlDbType.Int
+                    ).Value = jobId;
+                }
+
+
+                // =====================================
+                // STATUS
+                // =====================================
 
                 if (!string.IsNullOrWhiteSpace(status))
                 {
@@ -388,6 +562,10 @@ namespace Success24_Job_Portal.Recruiter
                     ).Value = status;
                 }
 
+
+                // =====================================
+                // SEARCH
+                // =====================================
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
@@ -407,9 +585,7 @@ namespace Success24_Job_Portal.Recruiter
                     DataTable dt =
                         new DataTable();
 
-
                     da.Fill(dt);
-
 
                     gvApplications.DataSource =
                         dt;
@@ -418,7 +594,6 @@ namespace Success24_Job_Portal.Recruiter
                 }
             }
         }
-
 
 
         protected void btnSearch_Click(object sender, EventArgs e)
@@ -462,7 +637,7 @@ namespace Success24_Job_Portal.Recruiter
 
             DropDownList ddl =
                 row.FindControl(
-                    "ddlApplicationStatus")
+                    "ddlStatus")
                     as DropDownList;
 
 
@@ -492,246 +667,134 @@ namespace Success24_Job_Portal.Recruiter
         // UPDATE STATUS IN DATABASE
         // =========================================
 
-        private void UpdateApplicationStatus(
-            int applicationId,
-            string newStatus)
+        private void UpdateApplicationStatus(int applicationId, string status)
         {
-            int recruiterId =
-                Convert.ToInt32(
-                    Session["RecruiterId"]
-                );
+            int recruiterId = Convert.ToInt32(Session["RecruiterId"]);
 
+            string connectionString =
+                ConfigurationManager.ConnectionStrings["Success24Connection"].ConnectionString;
 
-            try
+            // First verify that this application belongs to one of this recruiter's jobs
+            string checkQuery = @"
+        SELECT COUNT(*)
+        FROM Applications A
+        INNER JOIN Jobs J ON A.JobId = J.JobId
+        WHERE A.ApplicationId = @ApplicationId
+          AND J.RecruiterId = @RecruiterId;";
+
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
-                const string verifyQuery = @"
-                    SELECT COUNT(*)
-
-                    FROM Applications A
-
-                    INNER JOIN Jobs J
-                        ON A.JobId = J.JobId
-
-                    WHERE A.ApplicationId =
-                          @ApplicationId
-
-                      AND J.RecruiterId =
-                          @RecruiterId;";
-
-
-                using (
-                    SqlConnection con =
-                        new SqlConnection(
-                            connectionString))
+                using (SqlCommand cmd = new SqlCommand(checkQuery, con))
                 {
+                    cmd.Parameters.Add("@ApplicationId", SqlDbType.Int).Value = applicationId;
+                    cmd.Parameters.Add("@RecruiterId", SqlDbType.Int).Value = recruiterId;
+
                     con.Open();
 
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
 
-                    // =================================
-                    // SECURITY CHECK
-                    // =================================
-
-                    using (
-                        SqlCommand verifyCmd =
-                            new SqlCommand(
-                                verifyQuery,
-                                con))
+                    if (count == 0)
                     {
-                        verifyCmd.Parameters.Add(
-                            "@ApplicationId",
-                            SqlDbType.Int
-                        ).Value =
-                            applicationId;
-
-
-                        verifyCmd.Parameters.Add(
-                            "@RecruiterId",
-                            SqlDbType.Int
-                        ).Value =
-                            recruiterId;
-
-
-                        int exists =
-                            Convert.ToInt32(
-                                verifyCmd.ExecuteScalar()
-                            );
-
-
-                        if (exists == 0)
-                        {
-                            ShowMessage(
-                                "You are not authorized to update this application.",
-                                false
-                            );
-
-                            return;
-                        }
-                    }
-
-
-                    // =================================
-                    // UPDATE QUERY
-                    // =================================
-
-                    string updateQuery = @"
-                        UPDATE Applications
-
-                        SET
-                            ApplicationStatus =
-                                @Status,
-
-                            UpdatedAt =
-                                SYSDATETIME(),
-
-                            ViewedAt =
-                                CASE
-                                    WHEN @Status <> 'Pending'
-                                    THEN
-                                        ISNULL(
-                                            ViewedAt,
-                                            SYSDATETIME()
-                                        )
-                                    ELSE
-                                        ViewedAt
-                                END,
-
-                            ShortlistedAt =
-                                CASE
-                                    WHEN @Status = 'Shortlisted'
-                                    THEN
-                                        SYSDATETIME()
-
-                                    ELSE
-                                        ShortlistedAt
-                                END,
-
-                            RejectedAt =
-                                CASE
-                                    WHEN @Status = 'Rejected'
-                                    THEN
-                                        SYSDATETIME()
-
-                                    ELSE
-                                        RejectedAt
-                                END
-
-                        WHERE ApplicationId =
-                              @ApplicationId;";
-
-
-                    using (
-                        SqlCommand cmd =
-                            new SqlCommand(
-                                updateQuery,
-                                con))
-                    {
-                        cmd.Parameters.Add(
-                            "@ApplicationId",
-                            SqlDbType.Int
-                        ).Value =
-                            applicationId;
-
-
-                        cmd.Parameters.Add(
-                            "@Status",
-                            SqlDbType.NVarChar,
-                            50
-                        ).Value =
-                            newStatus;
-
-
-                        cmd.ExecuteNonQuery();
+                        ShowMessage("You are not authorized to update this application.", false);
+                        return;
                     }
                 }
-
-
-                ShowMessage(
-                    "Application status updated successfully.",
-                    true
-                );
-
-
-                LoadStatistics();
-
-                LoadApplications();
             }
-            catch (Exception ex)
+
+            // Update application status and preserve timeline dates
+            string updateQuery = @"
+        UPDATE Applications
+        SET
+            ApplicationStatus = @Status,
+            UpdatedAt = SYSDATETIME(),
+
+            ViewedAt =
+                CASE
+                    WHEN @Status IN
+                    ('Viewed', 'Shortlisted', 'Interview',
+                     'Selected', 'Hired', 'Rejected', 'Withdrawn')
+                    THEN ISNULL(ViewedAt, SYSDATETIME())
+                    ELSE ViewedAt
+                END,
+
+            ShortlistedAt =
+                CASE
+                    WHEN @Status = 'Shortlisted'
+                    THEN ISNULL(ShortlistedAt, SYSDATETIME())
+                    ELSE ShortlistedAt
+                END,
+
+            RejectedAt =
+                CASE
+                    WHEN @Status = 'Rejected'
+                    THEN ISNULL(RejectedAt, SYSDATETIME())
+                    ELSE RejectedAt
+                END
+
+        WHERE ApplicationId = @ApplicationId;";
+
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
-                ShowMessage(
-                    "Unable to update application: " +
-                    ex.Message,
-                    false
-                );
+                using (SqlCommand cmd = new SqlCommand(updateQuery, con))
+                {
+                    cmd.Parameters.Add("@ApplicationId", SqlDbType.Int).Value = applicationId;
+                    cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 50).Value = status;
+
+                    con.Open();
+                    int rows = cmd.ExecuteNonQuery();
+
+                    if (rows > 0)
+                    {
+                        ShowMessage("Application status updated successfully.", true);
+
+                        LoadStatistics();
+                        LoadApplications();
+                    }
+                    else
+                    {
+                        ShowMessage("Unable to update application status.", false);
+                    }
+                }
             }
         }
-
 
         // =========================================
         // STATUS CSS
         // =========================================
 
-        protected string GetStatusClass(
-            object statusObject)
+        protected string GetStatusClass(string status)
         {
-            string status =
-                Convert.ToString(
-                    statusObject
-                );
-
-
-            if (
-                string.Equals(
-                    status,
-                    "Pending",
-                    StringComparison.OrdinalIgnoreCase))
+            switch ((status ?? "").Trim().ToLower())
             {
-                return "status status-pending";
+                case "applied":
+                case "pending":
+                    return "status-pending";
+
+                case "viewed":
+                    return "status-viewed";
+
+                case "shortlisted":
+                    return "status-shortlisted";
+
+                case "interview":
+                    return "status-interview";
+
+                case "selected":
+                    return "status-selected";
+
+                case "hired":
+                    return "status-hired";
+
+                case "rejected":
+                    return "status-rejected";
+
+                case "withdrawn":
+                    return "status-withdrawn";
+
+                default:
+                    return "status-pending";
             }
-
-
-            if (
-                string.Equals(
-                    status,
-                    "Shortlisted",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return "status status-shortlisted";
-            }
-
-
-            if (
-                string.Equals(
-                    status,
-                    "Interview",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return "status status-interview";
-            }
-
-
-            if (
-                string.Equals(
-                    status,
-                    "Selected",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return "status status-selected";
-            }
-
-
-            if (
-                string.Equals(
-                    status,
-                    "Rejected",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return "status status-rejected";
-            }
-
-
-            return "status status-withdrawn";
         }
-
 
         // =========================================
         // MESSAGE
@@ -764,7 +827,7 @@ namespace Success24_Job_Portal.Recruiter
 
             DropDownList ddl =
                 e.Row.FindControl(
-                    "ddlApplicationStatus")
+                    "ddlStatus")
                 as DropDownList;
 
 
