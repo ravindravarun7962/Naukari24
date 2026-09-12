@@ -643,5 +643,101 @@ namespace Success24_Job_Portal.Recruiter
 
             LoadJobs();
         }
+
+        protected void rptJobs_ItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+            if (e.CommandName != "CloseJob")
+                return;
+
+            int jobId;
+
+            if (!int.TryParse(
+                Convert.ToString(e.CommandArgument),
+                out jobId))
+            {
+                return;
+            }
+
+            int recruiterId;
+
+            if (!int.TryParse(
+                Convert.ToString(Session["RecruiterId"]),
+                out recruiterId))
+            {
+                Response.Redirect("~/Recruiter/Login.aspx");
+                return;
+            }
+
+            const string query = @"
+        UPDATE Jobs
+        SET
+            JobStatus = 'Closed',
+            UpdatedAt = SYSDATETIME()
+        WHERE JobId = @JobId
+          AND RecruiterId = @RecruiterId;";
+
+            try
+            {
+                using (SqlConnection con =
+                    new SqlConnection(connectionString))
+                using (SqlCommand cmd =
+                    new SqlCommand(query, con))
+                {
+                    cmd.Parameters.Add(
+                        "@JobId",
+                        SqlDbType.Int
+                    ).Value = jobId;
+
+                    cmd.Parameters.Add(
+                        "@RecruiterId",
+                        SqlDbType.Int
+                    ).Value = recruiterId;
+
+                    con.Open();
+
+                    int rows =
+                        cmd.ExecuteNonQuery();
+
+                    if (rows > 0)
+                    {
+                        LoadJobs();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Add logging here if required.
+            }
+        }
+
+        protected void rptJobs_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            if (e.Item.ItemType != ListItemType.Item &&
+       e.Item.ItemType != ListItemType.AlternatingItem)
+            {
+                return;
+            }
+
+            LinkButton btnCloseJob =
+                e.Item.FindControl("btnCloseJob")
+                as LinkButton;
+
+            if (btnCloseJob == null)
+                return;
+
+            string status =
+                Convert.ToString(
+                    DataBinder.Eval(
+                        e.Item.DataItem,
+                        "JobStatus"
+                    ));
+
+            btnCloseJob.Visible =
+                !string.Equals(
+                    status,
+                    "Closed",
+                    StringComparison.OrdinalIgnoreCase
+                );
+        }
     }
 }

@@ -1,7 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Recruiter/Recruiter.Master" AutoEventWireup="true" CodeBehind="Jobs.aspx.cs" Inherits="Success24_Job_Portal.Recruiter.Jobs" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-     <link href="<%= ResolveUrl("~/Assets/css/jobseeker-jobs.css") %>"
-          rel="stylesheet" />
+     <link href="<%= ResolveUrl("~/Assets/css/jobseeker-jobs.css") %>" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
         <div class="jobs-page">
@@ -15,17 +14,17 @@
 
             <div>
 
-                <span class="jobs-eyebrow">
-                    JOB SEARCH
+              <span class="jobs-eyebrow">
+                    RECRUITER PORTAL
                 </span>
 
                 <h1>
-                    Find your next opportunity
+                    Manage Your Jobs
                 </h1>
 
                 <p>
-                    Discover jobs that match your skills,
-                    experience and career goals.
+                    Create, edit and manage your job postings,
+                    applications and hiring activities.
                 </p>
 
             </div>
@@ -147,9 +146,11 @@
             <div class="jobs-list">
 
 
-                <asp:Repeater
-                    ID="rptJobs"
-                    runat="server">
+             <asp:Repeater
+                ID="rptJobs"
+                runat="server"
+                OnItemCommand="rptJobs_ItemCommand"
+                OnItemDataBound="rptJobs_ItemDataBound">
 
 
                     <ItemTemplate>
@@ -269,21 +270,66 @@
                                     </span>
 
 
-                                   <a
-                                    href='<%# ResolveUrl(
-                                        "~/Recruiter/JobDetails.aspx?JobId="
-                                        +
-                                        Convert.ToString(
-                                            Eval("JobId")
-                                        )
-                                    ) %>'
-                                    class="job-view-btn">
+                     <div class="job-actions">
 
-                                    View Details
+                    <a
+                        href='<%# ResolveUrl(
+                            "~/Recruiter/JobDetails.aspx?JobId="
+                            +
+                            Convert.ToString(
+                                Eval("JobId")
+                            )
+                        ) %>'
+                        class="job-view-btn">
 
-                                    <i class="bi bi-arrow-right"></i>
+                        View Details
 
-                                </a>
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                    <a
+                        href='<%# ResolveUrl(
+                            "~/Recruiter/JobPost.aspx?JobId="
+                            +
+                            Convert.ToString(
+                                Eval("JobId")
+                            )
+                        ) %>'
+                        class="job-edit-btn">
+
+                        <i class="bi bi-pencil"></i>
+                        Edit
+
+                    </a>
+
+                    <a
+                        href='<%# ResolveUrl(
+                            "~/Recruiter/Applications.aspx?JobId="
+                            +
+                            Convert.ToString(
+                                Eval("JobId")
+                            )
+                        ) %>'
+                        class="job-applications-btn">
+
+                        <i class="bi bi-people"></i>
+                        Applications
+
+                    </a>
+
+                    <asp:LinkButton
+                        ID="btnCloseJob"
+                        runat="server"
+                        Text="Close"
+                        CssClass="job-close-btn"
+                        CommandName="CloseJob"
+                        CommandArgument='<%# Eval("JobId") %>'
+                        OnClientClick="return confirm('Are you sure you want to close this job?');">
+
+                    </asp:LinkButton>
+
+                </div>
 
 
                                 </div>

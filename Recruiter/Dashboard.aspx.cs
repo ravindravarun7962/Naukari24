@@ -27,9 +27,123 @@ namespace Success24_Job_Portal.Recruiter
                 LoadStatistics();
 
                 LoadRecentJobs();
+
+                LoadRecentApplications();
             }
 
         }
+
+        private void LoadRecentApplications()
+        {
+            int recruiterId =
+                Convert.ToInt32(Session["RecruiterId"]);
+
+            const string query = @"
+        SELECT TOP 5
+
+            A.ApplicationId,
+
+            A.JobId,
+
+            A.JobSeekerId,
+
+            A.ApplicationStatus,
+
+            A.AppliedAt,
+
+            J.JobTitle,
+
+            C.CompanyName,
+
+            U.FullName,
+
+            U.Email
+
+        FROM Applications A
+
+        INNER JOIN Jobs J
+            ON A.JobId = J.JobId
+
+        INNER JOIN Companies C
+            ON J.CompanyId = C.CompanyId
+
+        INNER JOIN Users U
+            ON A.JobSeekerId = U.UserId
+
+        WHERE J.RecruiterId = @RecruiterId
+
+        ORDER BY
+            A.AppliedAt DESC;";
+
+
+            using (SqlConnection con =
+                new SqlConnection(connectionString))
+
+            using (SqlCommand cmd =
+                new SqlCommand(query, con))
+            {
+                cmd.Parameters.Add(
+                    "@RecruiterId",
+                    SqlDbType.Int
+                ).Value = recruiterId;
+
+
+                using (SqlDataAdapter da =
+                    new SqlDataAdapter(cmd))
+                {
+                    DataTable dt =
+                        new DataTable();
+
+                    da.Fill(dt);
+
+
+                    gvRecentApplications.DataSource =
+                        dt;
+
+                    gvRecentApplications.DataBind();
+                }
+            }
+        }
+
+        protected string GetApplicationStatusClass(object statusObject)
+        {
+            string status =
+                Convert.ToString(statusObject);
+
+            switch (
+                (status ?? "").Trim().ToLower()
+            )
+            {
+                case "applied":
+                case "pending":
+                    return "status-pending";
+
+                case "viewed":
+                    return "status-viewed";
+
+                case "shortlisted":
+                    return "status-shortlisted";
+
+                case "interview":
+                    return "status-interview";
+
+                case "selected":
+                    return "status-selected";
+
+                case "hired":
+                    return "status-hired";
+
+                case "rejected":
+                    return "status-rejected";
+
+                case "withdrawn":
+                    return "status-rejected";
+
+                default:
+                    return "status-pending";
+            }
+        }
+
         // =========================================
         // CHECK LOGIN
         // =========================================
@@ -350,12 +464,20 @@ namespace Success24_Job_Portal.Recruiter
 
             // -------------------------------------
             // APPLICATIONS
-            //
-            // Applications table may not yet exist.
-            // Keep zero until that table is created.
             // -------------------------------------
 
-            lblApplications.Text = "0";
+            const string applicationsQuery = @"
+                SELECT COUNT(*)
+                FROM Applications A
+                INNER JOIN Jobs J
+                    ON A.JobId = J.JobId
+                WHERE J.RecruiterId = @RecruiterId;";
+
+            lblApplications.Text =
+                ExecuteCount(
+                    applicationsQuery,
+                    recruiterId
+                ).ToString();
         }
 
 

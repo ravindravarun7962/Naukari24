@@ -511,9 +511,9 @@ namespace Success24_Job_Portal.JobSeeker
                 ShowMessage("Profile photo updated successfully.",true);
                 LoadBasicInformation();
             }
-            catch
+            catch(Exception ex)
             {
-                ShowMessage("Unable to upload profile photo.",false);
+                ShowMessage("Upload Error: " + ex.ToString(), false);
             }
         }
 

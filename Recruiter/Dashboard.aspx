@@ -379,6 +379,75 @@
             font-weight: 600;
         }
 
+        .status-viewed {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.status-shortlisted {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-interview {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.status-selected {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-hired {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-rejected {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-pending {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #f3f4f6;
+    color: #4b5563;
+}
 
         /* =========================================
            QUICK ACTIONS
@@ -946,6 +1015,143 @@
                 </div>
 
             </div>
+
+            <!-- =================================
+     RECENT APPLICATIONS
+================================== -->
+
+<div class="dashboard-card" style="margin-top:20px;">
+
+    <div class="dashboard-card-header">
+
+        <h2 class="dashboard-card-title">
+            Recent Applications
+        </h2>
+
+        <a href="Applications.aspx"
+           class="view-all">
+            View All
+        </a>
+
+    </div>
+
+    <div class="job-table-wrapper">
+
+        <asp:GridView
+            ID="gvRecentApplications"
+            runat="server"
+            AutoGenerateColumns="False"
+            CssClass="job-table"
+            GridLines="None"
+            ShowHeader="true"
+            EmptyDataText="">
+
+            <Columns>
+
+<%--Candidate --%>
+                <asp:TemplateField HeaderText="Candidate">
+
+                    <ItemTemplate>
+
+                        <span class="job-title">
+                            <%# Eval("FullName") %>
+                        </span>
+
+                        <span class="job-company">
+                            <%# Eval("Email") %>
+                        </span>
+
+                    </ItemTemplate>
+
+                </asp:TemplateField>
+
+
+               <%--  Job --%>
+                <asp:BoundField
+                    DataField="JobTitle"
+                    HeaderText="Job" />
+
+
+                <%-- Applied --%>
+                <asp:TemplateField HeaderText="Applied">
+
+                    <ItemTemplate>
+
+                        <%#
+                            Eval(
+                                "AppliedAt",
+                                "{0:dd MMM yyyy}"
+                            )
+                        %>
+
+                    </ItemTemplate>
+
+                </asp:TemplateField>
+
+
+                <%-- Status --%>
+                <asp:TemplateField HeaderText="Status">
+
+                    <ItemTemplate>
+
+                        <span class='<%# GetApplicationStatusClass(Eval("ApplicationStatus")) %>'>
+                            <%# Eval("ApplicationStatus") %>
+                        </span>
+
+                    </ItemTemplate>
+
+                </asp:TemplateField>
+
+
+               <%--  Action --%>
+                <asp:TemplateField HeaderText="Action">
+
+                    <ItemTemplate>
+
+                        <a
+                            href='<%# "ApplicantDetails.aspx?ApplicationId=" + Eval("ApplicationId") %>'
+                            class="view-all">
+
+                            View
+
+                        </a>
+
+                    </ItemTemplate>
+
+                </asp:TemplateField>
+
+            </Columns>
+
+
+            <EmptyDataTemplate>
+
+                <div class="empty-state">
+
+                    <i class="bi bi-people"></i>
+
+                    <p>
+                        No applications received yet.
+                    </p>
+
+                    <a
+                        href="Jobs.aspx"
+                        class="empty-btn">
+
+                        <i class="bi bi-briefcase"></i>
+
+                        View My Jobs
+
+                    </a>
+
+                </div>
+
+            </EmptyDataTemplate>
+
+        </asp:GridView>
+
+    </div>
+
+</div>
 
 
             <!-- =================================
