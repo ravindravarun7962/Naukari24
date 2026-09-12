@@ -55,7 +55,99 @@ namespace Success24_Job_Portal
                 }
             }
         }
+        private string CreateCompanySlug(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
 
+            text = text.Trim();
+
+            System.Text.StringBuilder result =
+                new System.Text.StringBuilder();
+
+            foreach (char c in text)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    result.Append(c);
+                }
+                else if (c == ' ' || c == '_' || c == '-')
+                {
+                    if (result.Length > 0 &&
+                        result[result.Length - 1] != '_')
+                    {
+                        result.Append('_');
+                    }
+                }
+            }
+
+            return result.ToString().Trim('_');
+        }
+
+
+        private string CreatePositionSlug(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
+
+            text = text.Trim();
+
+            System.Text.StringBuilder result =
+                new System.Text.StringBuilder();
+
+            foreach (char c in text)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    result.Append(c);
+                }
+                else if (c == ' ' || c == '-' || c == '_')
+                {
+                    if (result.Length > 0 &&
+                        result[result.Length - 1] != '-')
+                    {
+                        result.Append('-');
+                    }
+                }
+            }
+
+            return result.ToString().Trim('-');
+        }
+
+
+        private string CreateCitySlug(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
+
+            return text.Trim().Replace(" ", "-");
+        }
+
+
+        protected string GetJobDetailsUrl(
+            object cityObject,
+            object companyObject,
+            object jobTitleObject)
+        {
+            string city =
+                Convert.ToString(cityObject).Trim();
+
+            string company =
+                Convert.ToString(companyObject).Trim();
+
+            string jobTitle =
+                Convert.ToString(jobTitleObject).Trim();
+
+            return GetRouteUrl(
+                "JobDetailsClean",
+                new
+                {
+                    city = CreateCitySlug(city),
+                    company = CreateCompanySlug(company),
+                    position = CreatePositionSlug(jobTitle)
+                }
+            );
+        }
         // =========================================
         // LOAD JOBS
         // =========================================

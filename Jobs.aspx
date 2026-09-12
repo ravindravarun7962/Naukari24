@@ -676,14 +676,19 @@
                                     </div>
 
 
-                                    <a
-                                        href='<%# ResolveUrl("~/JobDetails.aspx?JobId=" + Eval("JobId")) %>'
-                                        class="view-job-btn">
+                                 <a
+                                    href='<%# GetJobDetailsUrl(
+                                        Eval("City"),
+                                        Eval("CompanyName"),
+                                        Eval("JobTitle")
+                                    ) %>'
+                                    class="job-view-btn">
 
-                                        View Details
-                                        <i class="bi bi-arrow-right ms-1"></i>
+                                    View Details
 
-                                    </a>
+                                    <i class="bi bi-arrow-right"></i>
+
+                                </a>
 
                                 </div>
 

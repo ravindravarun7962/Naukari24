@@ -22,14 +22,11 @@ namespace Success24_Job_Portal
 
         private static void RegisterRoutes(RouteCollection routes)
         {
-            // =====================================================
-            // JOB SEEKER SEARCH URL
-            //
-            // /Noida/Jobseeker/Looking-for-Data-Scientist
-            //
-            // city    = Noida
-            // keyword = Data Scientist
-            // =====================================================
+            routes.MapPageRoute(
+                "JobDetailsClean",
+                "{city}/{company}/Jobs/{position}",
+                "~/JobDetails.aspx"
+            );
 
             routes.MapPageRoute(
                 "JobSeekerJobSearch",

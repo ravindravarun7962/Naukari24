@@ -51,6 +51,20 @@ namespace Success24_Job_Portal.Recruiter
                 return;
             }
 
+            string city =
+       Convert.ToString(
+           Request.RequestContext.RouteData.Values["city"]
+       );
+
+            string company =
+                Convert.ToString(
+                    Request.RequestContext.RouteData.Values["company"]
+                );
+
+            string position =
+                Convert.ToString(
+                    Request.RequestContext.RouteData.Values["position"]
+                );
 
             const string query = @"
                 SELECT
@@ -211,7 +225,7 @@ namespace Success24_Job_Portal.Recruiter
                         // LOCATION
                         // =================================
 
-                        string city =
+                         city =
                             GetString(
                                 reader["City"]
                             );

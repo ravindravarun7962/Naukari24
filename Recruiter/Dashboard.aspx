@@ -1262,6 +1262,31 @@
 
                         </a>
 
+                      <a href='<%= ResolveUrl("~/Recruiter/SearchCandidates.aspx") %>'
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+
+                                <i class="bi bi-search"></i>
+
+                            </div>
+
+                            <div class="quick-action-content">
+
+                                <span class="quick-action-title">
+                                    Search Candidates
+                                </span>
+
+                                <span class="quick-action-text">
+                                    Find candidates by skills, experience and location
+                                </span>
+
+                            </div>
+
+                            <i class="bi bi-chevron-right"></i>
+
+                        </a>
+
 
                         <a
                             href="Profile.aspx"

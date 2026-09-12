@@ -98,6 +98,9 @@
     <Content Include="Default.aspx" />
     <Content Include="JobSeekerRegister.aspx" />
     <Content Include="JobSeeker\EditProfile.aspx" />
+    <Content Include="JobSeeker\Login.aspx" />
+    <Content Include="JobSeeker\Register.aspx" />
+    <Content Include="PrivacyPolicy.aspx" />
     <Content Include="Recruiter\ApplicantDetails.aspx" />
     <Content Include="Recruiter\Applications.aspx" />
     <Content Include="Recruiter\CompanyProfile.aspx" />
@@ -111,7 +114,9 @@
     <Content Include="Recruiter\Login.aspx" />
     <Content Include="Recruiter\RecruiterProfile.aspx" />
     <Content Include="Recruiter\RecruiterRegister.aspx" />
+    <Content Include="Recruiter\SearchCandidates.aspx" />
     <Content Include="Register.aspx" />
+    <Content Include="TermsAndConditions.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +171,27 @@
     </Compile>
     <Compile Include="JobSeeker\EditProfile.aspx.designer.cs">
       <DependentUpon>EditProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="JobSeeker\Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="JobSeeker\Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="JobSeeker\Register.aspx.cs">
+      <DependentUpon>Register.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="JobSeeker\Register.aspx.designer.cs">
+      <DependentUpon>Register.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="PrivacyPolicy.aspx.cs">
+      <DependentUpon>PrivacyPolicy.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PrivacyPolicy.aspx.designer.cs">
+      <DependentUpon>PrivacyPolicy.aspx</DependentUpon>
     </Compile>
     <Compile Include="Recruiter\ApplicantDetails.aspx.cs">
       <DependentUpon>ApplicantDetails.aspx</DependentUpon>
@@ -273,6 +299,13 @@
     <Compile Include="Recruiter\RecruiterRegister.aspx.designer.cs">
       <DependentUpon>RecruiterRegister.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Recruiter\SearchCandidates.aspx.cs">
+      <DependentUpon>SearchCandidates.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Recruiter\SearchCandidates.aspx.designer.cs">
+      <DependentUpon>SearchCandidates.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Register.aspx.cs">
       <DependentUpon>Register.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -286,6 +319,13 @@
     </Compile>
     <Compile Include="Site.Master.designer.cs">
       <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
+    <Compile Include="TermsAndConditions.aspx.cs">
+      <DependentUpon>TermsAndConditions.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TermsAndConditions.aspx.designer.cs">
+      <DependentUpon>TermsAndConditions.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

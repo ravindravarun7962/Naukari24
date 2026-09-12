@@ -10,7 +10,7 @@
           content="width=device-width, initial-scale=1.0" />
 
     <title>
-        <%: Page.Title %> | NAUKARI24
+        <%: Page.Title %> NAUKARI24
     </title>
 
     <!-- Bootstrap 5 -->
@@ -196,7 +196,7 @@
                         <div class="employer-divider d-none d-lg-block"></div>
 
 
-                        <a href="<%= ResolveUrl("~/Recruiter/RecruiterRegister.aspx") %>"
+                        <a href="<%= ResolveUrl("~/Recruiter/Login.aspx") %>"
                            class="btn btn-employer">
 
                             <i class="bi bi-building me-1"></i>
@@ -352,19 +352,19 @@
                         </li>
 
                         <li>
-                            <a href="<%= ResolveUrl("~/Login.aspx") %>">
+                            <a href="<%= ResolveUrl("~/Recruiter/Login.aspx") %>">
                                 Recruiter Login
                             </a>
                         </li>
 
                         <li>
-                            <a href="#">
+                            <a href="<%= ResolveUrl("~/Recruiter/PostJob.aspx") %>">
                                 Post a Job
                             </a>
                         </li>
 
                         <li>
-                            <a href="#">
+                            <a href="<%= ResolveUrl("~/Recruiter/SearchCandidates.aspx") %>">
                                 Search Candidates
                             </a>
                         </li>
@@ -397,13 +397,13 @@
                         </li>
 
                         <li>
-                            <a href="#">
+                            <a href="<%= ResolveUrl("~/PrivacyPolicy.aspx") %>">
                                 Privacy Policy
                             </a>
                         </li>
 
                         <li>
-                            <a href="#">
+                            <a href="<%= ResolveUrl("~/TermsAndConditions.aspx") %>">
                                 Terms & Conditions
                             </a>
                         </li>

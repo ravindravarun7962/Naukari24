@@ -481,13 +481,13 @@
 
                             I agree to the
 
-                            <a href="#">
+                            <a href="<%= ResolveUrl("~/PrivacyPolicy.aspx") %>">
                                 Terms & Conditions
                             </a>
 
                             and
 
-                            <a href="#">
+                            <a href="<%= ResolveUrl("~/PrivacyPolicy.aspx") %>">
                                 Privacy Policy
                             </a>.
 
