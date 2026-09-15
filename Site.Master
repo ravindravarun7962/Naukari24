@@ -385,13 +385,13 @@
                     <ul class="footer-links">
 
                         <li>
-                            <a href="#">
+                            <a href="<%= ResolveUrl("~/AboutUs.aspx") %>">
                                 About Us
                             </a>
                         </li>
 
                         <li>
-                            <a href="#">
+                            <a href="<%= ResolveUrl("~/Contact.aspx") %>">
                                 Contact Us
                             </a>
                         </li>
