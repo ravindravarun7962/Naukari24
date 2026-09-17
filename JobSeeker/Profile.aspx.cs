@@ -13,12 +13,6 @@ namespace Success24_Job_Portal.JobSeeker
 {
     public partial class Profile : System.Web.UI.Page
     {
-        private readonly string connectionString =
-            ConfigurationManager
-            .ConnectionStrings["Success24Connection"]
-            .ConnectionString;
-
-
         private int UserId
         {
             get
@@ -97,40 +91,30 @@ namespace Success24_Job_Portal.JobSeeker
         private int GetJobSeekerId()
         {
             const string query = @"
-                SELECT JobSeekerId
-                FROM JobSeekerProfiles
-                WHERE UserId = @UserId;";
+        SELECT JobSeekerId
+        FROM JobSeekerProfiles
+        WHERE UserId = @UserId;";
 
+            object result =
+                Utility.ExecuteScalar24(
+                    query,
+                    new SqlParameter(
+                        "@UserId",
+                        SqlDbType.Int
+                    )
+                    {
+                        Value = UserId
+                    }
+                );
 
-            using (SqlConnection con =
-                   new SqlConnection(connectionString))
-            using (SqlCommand cmd =
-                   new SqlCommand(query, con))
+            if (result == null ||
+                result == DBNull.Value)
             {
-                cmd.Parameters.Add(
-                    "@UserId",
-                    SqlDbType.Int
-                ).Value = UserId;
-
-
-                con.Open();
-
-
-                object result =
-                    cmd.ExecuteScalar();
-
-
-                if (result == null ||
-                    result == DBNull.Value)
-                {
-                    return 0;
-                }
-
-
-                return Convert.ToInt32(result);
+                return 0;
             }
-        }
 
+            return Convert.ToInt32(result);
+        }
 
         // ==========================================
         // BASIC INFORMATION
@@ -175,201 +159,194 @@ namespace Success24_Job_Portal.JobSeeker
                 WHERE U.UserId = @UserId;";
 
 
-            using (SqlConnection con =
-                   new SqlConnection(connectionString))
-            using (SqlCommand cmd =
-                   new SqlCommand(query, con))
+            DataRow reader =
+     Utility._GetDataRow24(
+         query,
+         new SqlParameter(
+             "@UserId",
+             SqlDbType.Int
+         )
+         {
+             Value = UserId
+         }
+     );
+
+            if (reader == null)
             {
-                cmd.Parameters.Add(
-                    "@UserId",
-                    SqlDbType.Int
-                ).Value = UserId;
+                return;
+            }
+
+            string fullName =
+                GetString(
+                    reader["FullName"],
+                    "User"
+                );
 
 
-                con.Open();
+            lblFullName.Text =
+                Server.HtmlEncode(fullName);
 
 
-                using (SqlDataReader reader =
-                       cmd.ExecuteReader())
-                {
-                    if (!reader.Read())
-                    {
-                        return;
-                    }
+            lblProfileInitial.Text =
+                Server.HtmlEncode(
+                    fullName.Substring(0, 1)
+                        .ToUpper()
+                );
 
 
-                    string fullName =
-                        GetString(
-                            reader["FullName"],
-                            "User"
-                        );
+            lblEmail.Text =
+                Server.HtmlEncode(
+                    GetString(
+                        reader["Email"]
+                    )
+                );
 
 
-                    lblFullName.Text =
-                        Server.HtmlEncode(fullName);
+            lblMobile.Text =
+                Server.HtmlEncode(
+                    GetString(
+                        reader["Mobile"],
+                        "Not added"
+                    )
+                );
 
 
-                    lblProfileInitial.Text =
-                        Server.HtmlEncode(
-                            fullName.Substring(0, 1)
-                                .ToUpper()
-                        );
+            lblHeadline.Text =
+                Server.HtmlEncode(
+                    GetString(
+                        reader["Headline"],
+                        "Add your professional headline"
+                    )
+                );
 
 
-                    lblEmail.Text =
-                        Server.HtmlEncode(
-                            GetString(
-                                reader["Email"]
-                            )
-                        );
+            string city =
+                GetString(reader["CurrentCity"]);
+
+            string state =
+                GetString(reader["CurrentState"]);
 
 
-                    lblMobile.Text =
-                        Server.HtmlEncode(
-                            GetString(
-                                reader["Mobile"],
-                                "Not added"
-                            )
-                        );
+            lblLocation.Text =
+                Server.HtmlEncode(
+                    BuildLocation(
+                        city,
+                        state
+                    )
+                );
 
 
-                    lblHeadline.Text =
-                        Server.HtmlEncode(
-                            GetString(
-                                reader["Headline"],
-                                "Add your professional headline"
-                            )
-                        );
+            string about =
+                GetString(reader["ProfessionalSummary"]);
 
 
-                    string city =
-                    GetString(reader["CurrentCity"]);
+            if (string.IsNullOrWhiteSpace(about))
+            {
+                pnlAbout.Visible = false;
+                pnlNoAbout.Visible = true;
+            }
+            else
+            {
+                pnlAbout.Visible = true;
+                pnlNoAbout.Visible = false;
 
-                    string state =
-                        GetString(reader["CurrentState"]);
-
-
-                    lblLocation.Text =
-                        Server.HtmlEncode(
-                            BuildLocation(
-                                city,
-                                state
-                            )
-                        );
-
-
-                    string about =
-                      GetString(reader["ProfessionalSummary"]);
+                lblAbout.Text =
+                    Server.HtmlEncode(about);
+            }
 
 
-                    if (string.IsNullOrWhiteSpace(about))
-                    {
-                        pnlAbout.Visible = false;
-                        pnlNoAbout.Visible = true;
-                    }
-                    else
-                    {
-                        pnlAbout.Visible = true;
-                        pnlNoAbout.Visible = false;
-
-                        lblAbout.Text =
-                            Server.HtmlEncode(about);
-                    }
+            lblDesignation.Text =
+                SafeDisplay(
+                    reader["CurrentDesignation"]
+                );
 
 
-                    lblDesignation.Text =
-                        SafeDisplay(
-                            reader["CurrentDesignation"]
-                        );
+            lblCompany.Text =
+                SafeDisplay(
+                    reader["CurrentCompany"]
+                );
 
 
-                    lblCompany.Text =
-                        SafeDisplay(
-                            reader["CurrentCompany"]
-                        );
+            lblExperience.Text =
+                FormatExperience(
+                    reader["TotalExperienceMonths"]
+                );
 
 
-                    lblExperience.Text =
-                        FormatExperience(
-                            reader["TotalExperienceMonths"]
-                        );
+            lblCurrentSalary.Text =
+                FormatSalary(
+                    reader["CurrentSalary"]
+                );
 
 
-                    lblCurrentSalary.Text =
-                        FormatSalary(
-                            reader["CurrentSalary"]
-                        );
+            lblExpectedSalary.Text =
+                FormatSalary(
+                    reader["ExpectedSalary"]
+                );
 
 
-                    lblExpectedSalary.Text =
-                        FormatSalary(
-                            reader["ExpectedSalary"]
-                        );
+            lblNoticePeriod.Text =
+                reader["NoticePeriodDays"] == DBNull.Value
+                    ? "Not added"
+                    : Convert.ToString(
+                        reader["NoticePeriodDays"]
+                      ) + " Days";
 
 
-                    lblNoticePeriod.Text =
-                 reader["NoticePeriodDays"] == DBNull.Value
-                     ? "Not added"
-                     : Convert.ToString(
-                         reader["NoticePeriodDays"]
-                       ) + " Days";
+            lblEmploymentType.Text =
+                SafeDisplay(
+                    reader["PreferredEmploymentType"]
+                );
 
 
-                    lblEmploymentType.Text =
-                        SafeDisplay(
-                            reader["PreferredEmploymentType"]
-                        );
+            lblPreferredLocation.Text =
+                SafeDisplay(
+                    reader["PreferredLocation"]
+                );
 
 
-                    lblPreferredLocation.Text =
-                        SafeDisplay(
-                            reader["PreferredLocation"]
-                        );
+            lblPreferredRole.Text =
+                SafeDisplay(
+                    reader["PreferredRole"]
+                );
 
 
-                    lblPreferredRole.Text =
-                        SafeDisplay(
-                            reader["PreferredRole"]
-                        );
+            int completion =
+                reader["ProfileCompletion"] ==
+                DBNull.Value
+                    ? 0
+                    : Convert.ToInt32(
+                        reader["ProfileCompletion"]
+                    );
 
 
-                    int completion =
-                        reader["ProfileCompletion"] ==
-                        DBNull.Value
-                            ? 0
-                            : Convert.ToInt32(
-                                reader["ProfileCompletion"]
-                            );
+            lblCompletion.Text =
+                completion + "%";
 
 
-                    lblCompletion.Text =
-                        completion + "%";
+            // PROFILE PHOTO
+
+            string photo =
+                GetString(
+                    reader["ProfilePhoto"]
+                );
 
 
-                    // PROFILE PHOTO
+            if (!string.IsNullOrWhiteSpace(photo))
+            {
+                imgProfile.ImageUrl =
+                    ResolveUrl(photo);
 
-                    string photo =
-                        GetString(
-                            reader["ProfilePhoto"]
-                        );
-
-
-                    if (!string.IsNullOrWhiteSpace(photo))
-                    {
-                        imgProfile.ImageUrl =
-                            ResolveUrl(photo);
-
-                        imgProfile.Visible = true;
-                        pnlProfileInitial.Visible = false;
-                    }
-                    else
-                    {
-                        imgProfile.Visible = false;
-                        pnlProfileInitial.Visible = true;
-                    }
-                }
+                imgProfile.Visible = true;
+                pnlProfileInitial.Visible = false;
+            }
+            else
+            {
+                imgProfile.Visible = false;
+                pnlProfileInitial.Visible = true;
             }
         }
+        
 
 
         // ==========================================
@@ -548,84 +525,78 @@ namespace Success24_Job_Portal.JobSeeker
         ORDER BY UploadedAt DESC;";
 
 
-            using (SqlConnection con =
-                   new SqlConnection(connectionString))
-            using (SqlCommand cmd =
-                   new SqlCommand(query, con))
+            DataRow reader =
+      Utility._GetDataRow24(
+          query,
+          new SqlParameter(
+              "@JobSeekerId",
+              SqlDbType.Int
+          )
+          {
+              Value = JobSeekerId
+          }
+      );
+
+            if (reader != null)
             {
-                cmd.Parameters.Add(
-                    "@JobSeekerId",
-                    SqlDbType.Int
-                ).Value = JobSeekerId;
+                pnlResume.Visible = true;
+                pnlNoResume.Visible = false;
 
 
-                con.Open();
+                // Resume Name
+
+                lblResumeName.Text =
+                    Server.HtmlEncode(
+                        GetString(
+                            reader["OriginalFileName"],
+                            "Resume"
+                        )
+                    );
 
 
-                using (SqlDataReader reader =
-                       cmd.ExecuteReader())
+                // Upload Date
+
+                if (reader["UploadedAt"] !=
+                    DBNull.Value)
                 {
-                    if (reader.Read())
-                    {
-                        pnlResume.Visible = true;
-                        pnlNoResume.Visible = false;
+                    DateTime uploaded =
+                        Convert.ToDateTime(
+                            reader["UploadedAt"]
+                        );
 
 
-                        // Resume Name
-
-                        lblResumeName.Text =
-                            Server.HtmlEncode(
-                                GetString(
-                                    reader["OriginalFileName"],
-                                    "Resume"
-                                )
-                            );
-
-
-                        // Upload Date
-
-                        if (reader["UploadedAt"] !=
-                            DBNull.Value)
-                        {
-                            DateTime uploaded =
-                                Convert.ToDateTime(
-                                    reader["UploadedAt"]
-                                );
-
-
-                            lblResumeDate.Text =
-                                "Updated " +
-                                uploaded.ToString(
-                                    "dd MMM yyyy"
-                                );
-                        }
-                        else
-                        {
-                            lblResumeDate.Text = "";
-                        }
-
-
-                        // Resume Path
-
-                        string path =
-                            GetString(
-                                reader["FilePath"]
-                            );
-
-
-                        lnkResume.NavigateUrl =
-                            string.IsNullOrWhiteSpace(path)
-                                ? "#"
-                                : ResolveUrl(path);
-                    }
-                    else
-                    {
-                        pnlResume.Visible = false;
-                        pnlNoResume.Visible = true;
-                    }
+                    lblResumeDate.Text =
+                        "Updated " +
+                        uploaded.ToString(
+                            "dd MMM yyyy"
+                        );
                 }
+                else
+                {
+                    lblResumeDate.Text = "";
+                }
+
+
+                // Resume Path
+
+                string path =
+                    GetString(
+                        reader["FilePath"]
+                    );
+
+
+                lnkResume.NavigateUrl =
+                    string.IsNullOrWhiteSpace(path)
+                        ? "#"
+                        : ResolveUrl(path);
+            }
+            else
+            {
+                pnlResume.Visible = false;
+                pnlNoResume.Visible = true;
             }
         }
+
 
 
         // ==========================================
@@ -633,34 +604,20 @@ namespace Success24_Job_Portal.JobSeeker
         // ==========================================
 
         private DataTable GetTable(
-            string query,
-            string parameterName,
-            int parameterValue)
+     string query,
+     string parameterName,
+     int parameterValue)
         {
-            DataTable dt =
-                new DataTable();
-
-
-            using (SqlConnection con =
-                   new SqlConnection(connectionString))
-            using (SqlCommand cmd =
-                   new SqlCommand(query, con))
-            {
-                cmd.Parameters.Add(
+            return Utility._GetDataTable24(
+                query,
+                new SqlParameter(
                     parameterName,
                     SqlDbType.Int
-                ).Value = parameterValue;
-
-
-                using (SqlDataAdapter da =
-                       new SqlDataAdapter(cmd))
+                )
                 {
-                    da.Fill(dt);
+                    Value = parameterValue
                 }
-            }
-
-
-            return dt;
+            );
         }
 
 

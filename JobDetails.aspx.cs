@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace Success24_Job_Portal
 {
     public partial class JobDetails : System.Web.UI.Page
     {
-        private readonly string connectionString = ConfigurationManager.ConnectionStrings["Success24Connection"].ConnectionString;
         private int JobId
         {
             get
@@ -51,23 +45,20 @@ namespace Success24_Job_Portal
             const string query = @"SELECT TOP 1 J.JobId,J.JobTitle,J.JobDescription,J.Responsibilities,J.Requirements,J.EmploymentType,J.WorkMode,J.MinExperienceMonths,J.MaxExperienceMonths,J.MinSalary,J.MaxSalary,J.SalaryVisible,J.City,J.State,J.NumberOfOpenings,J.EducationRequirement,J.ApplicationDeadline,J.JobStatus,J.CreatedAt,C.CompanyName,C.CompanyLogo,C.Website,C.Industry,C.CompanySize,C.Description AS CompanyDescription FROM Jobs J INNER JOIN Companies C ON J.CompanyId = C.CompanyId WHERE J.JobId = @JobId AND J.JobStatus = 'Active' AND C.IsActive = 1 AND (J.ApplicationDeadline IS NULL OR J.ApplicationDeadline >= CAST(GETDATE() AS DATE));";
             try
             {
-                using (SqlConnection con = new SqlConnection(connectionString))
-                using (SqlCommand cmd = new SqlCommand(query,con))
+                DataRow row = Utility._GetDataRow24(query,new SqlParameter("@JobId",SqlDbType.Int)
                 {
-                    cmd.Parameters.Add("@JobId",SqlDbType.Int).Value = JobId;
-                    con.Open();
-                    using (SqlDataReader reader =cmd.ExecuteReader())
-                    {
-                        if (!reader.Read())
-                        {
-                            ShowJobNotFound();
-                            return;
-                        }
+                    Value = JobId
 
+                });
 
-                        BindJobDetails(reader);
-                    }
+                if (row == null)
+                {
+                    ShowJobNotFound();
+                    return;
                 }
+
+
+                BindJobDetails(row);
             }
             catch (Exception)
             {
@@ -80,7 +71,7 @@ namespace Success24_Job_Portal
         // BIND JOB DETAILS
         // =========================================
 
-        private void BindJobDetails(SqlDataReader reader)
+        private void BindJobDetails(DataRow row)
         {
             pnlJobDetails.Visible = true;
             pnlJobNotFound.Visible = false;
@@ -89,19 +80,19 @@ namespace Success24_Job_Portal
             // JOB TITLE
             // -----------------------------------------
 
-            lblJobTitle.Text = Html(reader["JobTitle"]);
+            lblJobTitle.Text = Html(row["JobTitle"]);
             // -----------------------------------------
             // COMPANY
             // -----------------------------------------
 
-            string companyName = GetString(reader["CompanyName"]);
+            string companyName = GetString(row["CompanyName"]);
             lblCompanyName.Text = Html(companyName);
             lblCompanyInitial.Text =GetCompanyInitial(companyName);
             // -----------------------------------------
             // LOCATION
             // -----------------------------------------
 
-            string location = GetLocation(reader["City"],reader["State"]);
+            string location = GetLocation(row["City"],row["State"]);
             lblLocation.Text = location;
             lblSidebarLocation.Text = location;
 
@@ -109,7 +100,7 @@ namespace Success24_Job_Portal
             // EXPERIENCE
             // -----------------------------------------
 
-            string experience = GetExperience(reader["MinExperienceMonths"],reader["MaxExperienceMonths"]);
+            string experience = GetExperience(row["MinExperienceMonths"],row["MaxExperienceMonths"]);
             lblExperience.Text = experience;
             lblSidebarExperience.Text = experience;
 
@@ -117,11 +108,11 @@ namespace Success24_Job_Portal
             // SALARY
             // -----------------------------------------
 
-            bool salaryVisible = reader["SalaryVisible"] != DBNull.Value && Convert.ToBoolean(reader["SalaryVisible"]);
+            bool salaryVisible = row["SalaryVisible"] != DBNull.Value && Convert.ToBoolean(row["SalaryVisible"]);
             pnlSalary.Visible = salaryVisible;
             if (salaryVisible)
             {
-                lblSalary.Text = GetSalary(reader["MinSalary"],reader["MaxSalary"]);
+                lblSalary.Text = GetSalary(row["MinSalary"],row["MaxSalary"]);
             }
 
 
@@ -129,12 +120,12 @@ namespace Success24_Job_Portal
             // JOB DESCRIPTION
             // -----------------------------------------
 
-            litJobDescription.Text = FormatMultilineText(reader["JobDescription"]);
+            litJobDescription.Text = FormatMultilineText(row["JobDescription"]);
             // -----------------------------------------
             // RESPONSIBILITIES
             // -----------------------------------------
              
-            string responsibilities = GetString(reader["Responsibilities"]);
+            string responsibilities = GetString(row["Responsibilities"]);
             if (string.IsNullOrWhiteSpace(responsibilities))
             {
                 pnlResponsibilities.Visible =false;
@@ -150,7 +141,7 @@ namespace Success24_Job_Portal
             // REQUIREMENTS
             // -----------------------------------------
 
-            string requirements = GetString(reader["Requirements"]);
+            string requirements = GetString(row["Requirements"]);
 
             if (string.IsNullOrWhiteSpace(requirements))
             {
@@ -167,24 +158,24 @@ namespace Success24_Job_Portal
             // EMPLOYMENT TYPE
             // -----------------------------------------
 
-            lblEmploymentType.Text =Html(reader["EmploymentType"]);
+            lblEmploymentType.Text =Html(row["EmploymentType"]);
 
             // -----------------------------------------
             // POSTED DATE
             // -----------------------------------------
 
-            lblPostedDate.Text =GetPostedDate(reader["CreatedAt"]);
+            lblPostedDate.Text =GetPostedDate(row["CreatedAt"]);
             // -----------------------------------------
             // DEADLINE
             // -----------------------------------------
 
-            if (reader["ApplicationDeadline"] == DBNull.Value)
+            if (row["ApplicationDeadline"] == DBNull.Value)
             {
                 lblDeadline.Text ="No deadline";
             }
             else
             {
-                DateTime deadline =Convert.ToDateTime(reader["ApplicationDeadline"]);
+                DateTime deadline =Convert.ToDateTime(row["ApplicationDeadline"]);
                 lblDeadline.Text =deadline.ToString("dd MMM yyyy");
             }
         }
@@ -604,43 +595,50 @@ namespace Success24_Job_Portal
         private bool IsJobAvailable(int jobId)
         {
             const string query = @"SELECT COUNT(*) FROM Jobs J INNER JOIN Companies C ON J.CompanyId = C.CompanyId WHERE J.JobId = @JobId AND J.JobStatus = 'Active' AND C.IsActive = 1 AND (J.ApplicationDeadline IS NULL OR J.ApplicationDeadline >= CAST(GETDATE() AS DATE));";
-            using (SqlConnection con = new SqlConnection(connectionString))
-            using (SqlCommand cmd =new SqlCommand(query, con))
-            {
-                cmd.Parameters.Add("@JobId",SqlDbType.Int).Value = jobId;
-                con.Open();
-                int count =Convert.ToInt32(cmd.ExecuteScalar());
-                return count > 0;
-            }
+
+            int count = Convert.ToInt32(Utility.ExecuteScalar24(query,new SqlParameter("@JobId",SqlDbType.Int)
+                    {
+                        Value = jobId
+                    })
+            );
+
+            return count > 0;
         }
 
-        private bool HasAlreadyApplied(int jobId,int jobSeekerId)
+        private bool HasAlreadyApplied(int jobId, int jobSeekerId)
         {
             const string query = @" SELECT COUNT(1) FROM Applications WHERE JobId = @JobId AND JobSeekerId = @JobSeekerId AND ApplicationStatus <> 'Withdrawn';";
-            using (SqlConnection con =new SqlConnection(connectionString))
-            using (SqlCommand cmd =new SqlCommand(query, con))
-            {
-                cmd.Parameters.Add("@JobId",SqlDbType.Int).Value = jobId;
-                cmd.Parameters.Add("@JobSeekerId",SqlDbType.Int).Value = jobSeekerId;
-                con.Open();
-                int count =Convert.ToInt32(cmd.ExecuteScalar());
+
+            int count = Convert.ToInt32(Utility.ExecuteScalar24(query,new SqlParameter("@JobId",SqlDbType.Int)
+                    {
+                        Value = jobId
+                    },
+
+                    new SqlParameter("@JobSeekerId",SqlDbType.Int)
+                    {
+                        Value = jobSeekerId
+                    }
+                )
+            );
 
 
-                return count > 0;
-            }
+            return count > 0;
         }
 
-        private void InsertApplication(int jobId,int jobSeekerId)
+        private void InsertApplication(int jobId, int jobSeekerId)
         {
             const string query = @"INSERT INTO Applications (JobId,JobSeekerId,ResumeId,CoverLetter,ApplicationStatus,AppliedAt,UpdatedAt) VALUES (@JobId,@JobSeekerId,NULL,NULL,'Applied',SYSDATETIME(),SYSDATETIME());";
-            using (SqlConnection con = new SqlConnection(connectionString))
-            using (SqlCommand cmd =new SqlCommand(query,con))
-            {
-                cmd.Parameters.Add("@JobId",SqlDbType.Int).Value = jobId;
-                cmd.Parameters.Add("@JobSeekerId",SqlDbType.Int).Value = jobSeekerId;
-                con.Open();
-                cmd.ExecuteNonQuery();
-            }
+
+            Utility.ExecuteQuery24(query,new SqlParameter("@JobId",SqlDbType.Int)
+                {
+                    Value = jobId
+                },
+
+                new SqlParameter("@JobSeekerId",SqlDbType.Int)
+                {
+                    Value = jobSeekerId
+                }
+            );
         }
 
         protected void btnApply_Click(object sender, EventArgs e)

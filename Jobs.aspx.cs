@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI.WebControls;
@@ -8,7 +7,6 @@ namespace Success24_Job_Portal
 {
     public partial class Jobs : System.Web.UI.Page
     {
-        private readonly string connectionString = ConfigurationManager.ConnectionStrings["Success24Connection"].ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -21,50 +19,37 @@ namespace Success24_Job_Portal
         // =========================================
         // LOAD CATEGORIES
         // =========================================
-
         private void LoadCategories()
         {
             ddlSearchCategory.Items.Clear();
-
             ddlSearchCategory.Items.Add(
-                new ListItem("All Categories", "")
+                new ListItem(
+                    "All Categories",
+                    ""
+                )
             );
 
-            const string query = @"
-                SELECT CategoryId, CategoryName
-                FROM JobCategories
-                WHERE IsActive = 1
-                ORDER BY CategoryName";
-
-            using (SqlConnection con = new SqlConnection(connectionString))
-            using (SqlCommand cmd = new SqlCommand(query, con))
+            const string query = @"SELECT CategoryId,CategoryName FROM JobCategories WHERE IsActive = 1 ORDER BY CategoryName;";
+            DataTable dt = Utility._GetDataTable24(query);                                               
+            foreach (DataRow row in dt.Rows)
             {
-                con.Open();
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        ddlSearchCategory.Items.Add(
-                            new ListItem(
-                                Convert.ToString(reader["CategoryName"]),
-                                Convert.ToString(reader["CategoryId"])
-                            )
-                        );
-                    }
-                }
+                ddlSearchCategory.Items.Add(
+                    new ListItem(
+                        Convert.ToString(row["CategoryName"]),
+                        Convert.ToString(row["CategoryId"])
+                    )
+                );
             }
         }
+
+
         private string CreateCompanySlug(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return "";
 
             text = text.Trim();
-
-            System.Text.StringBuilder result =
-                new System.Text.StringBuilder();
-
+            System.Text.StringBuilder result = new System.Text.StringBuilder();
             foreach (char c in text)
             {
                 if (char.IsLetterOrDigit(c))
@@ -73,8 +58,7 @@ namespace Success24_Job_Portal
                 }
                 else if (c == ' ' || c == '_' || c == '-')
                 {
-                    if (result.Length > 0 &&
-                        result[result.Length - 1] != '_')
+                    if (result.Length > 0 && result[result.Length - 1] != '_')
                     {
                         result.Append('_');
                     }
@@ -91,10 +75,7 @@ namespace Success24_Job_Portal
                 return "";
 
             text = text.Trim();
-
-            System.Text.StringBuilder result =
-                new System.Text.StringBuilder();
-
+            System.Text.StringBuilder result = new System.Text.StringBuilder();
             foreach (char c in text)
             {
                 if (char.IsLetterOrDigit(c))
@@ -103,8 +84,7 @@ namespace Success24_Job_Portal
                 }
                 else if (c == ' ' || c == '-' || c == '_')
                 {
-                    if (result.Length > 0 &&
-                        result[result.Length - 1] != '-')
+                    if (result.Length > 0 && result[result.Length - 1] != '-')
                     {
                         result.Append('-');
                     }
@@ -124,20 +104,12 @@ namespace Success24_Job_Portal
         }
 
 
-        protected string GetJobDetailsUrl(
-            object cityObject,
-            object companyObject,
-            object jobTitleObject)
+
+        protected string GetJobDetailsUrl(object cityObject,object companyObject,object jobTitleObject)
         {
-            string city =
-                Convert.ToString(cityObject).Trim();
-
-            string company =
-                Convert.ToString(companyObject).Trim();
-
-            string jobTitle =
-                Convert.ToString(jobTitleObject).Trim();
-
+            string city = Convert.ToString(cityObject).Trim();
+            string company = Convert.ToString(companyObject).Trim();
+            string jobTitle = Convert.ToString(jobTitleObject).Trim();
             return GetRouteUrl(
                 "JobDetailsClean",
                 new
@@ -148,6 +120,9 @@ namespace Success24_Job_Portal
                 }
             );
         }
+
+
+
         // =========================================
         // LOAD JOBS
         // =========================================
@@ -160,146 +135,55 @@ namespace Success24_Job_Portal
             string employmentType = ddlEmploymentType.SelectedValue;
             string workMode = ddlWorkMode.SelectedValue;
             string experience = ddlExperience.SelectedValue;
-
             int categoryId = 0;
             int experienceMonths = 0;
-
             if (!string.IsNullOrEmpty(category))
             {
-                int.TryParse(category, out categoryId);
+                int.TryParse(category,out categoryId);
             }
+
 
             if (!string.IsNullOrEmpty(experience))
             {
-                int.TryParse(experience, out experienceMonths);
+                int.TryParse(experience,out experienceMonths);
             }
 
-            string query = @"
-SELECT
-    J.JobId,
-    J.JobTitle,
-    J.EmploymentType,
-    J.WorkMode,
-    J.MinExperienceMonths,
-    J.MaxExperienceMonths,
-    J.MinSalary,
-    J.MaxSalary,
-    J.SalaryVisible,
-    J.City,
-    J.State,
-    J.CreatedAt,
-    C.CompanyName,
-    JC.CategoryName
-FROM Jobs J
-INNER JOIN Companies C
-    ON J.CompanyId = C.CompanyId
-LEFT JOIN JobCategories JC
-    ON J.CategoryId = JC.CategoryId
-WHERE
-    J.JobStatus = 'Active'
-    AND C.IsActive = 1
-    AND
-    (
-        J.ApplicationDeadline IS NULL
-        OR J.ApplicationDeadline >= CAST(GETDATE() AS DATE)
-    )
-    AND
-    (
-        @Search = ''
-        OR J.JobTitle LIKE '%' + @Search + '%'
-        OR J.JobDescription LIKE '%' + @Search + '%'
-        OR J.Requirements LIKE '%' + @Search + '%'
-        OR C.CompanyName LIKE '%' + @Search + '%'
-    )
-    AND
-    (
-        @Location = ''
-        OR J.City LIKE '%' + @Location + '%'
-        OR J.State LIKE '%' + @Location + '%'
-    )
-    AND
-    (
-        @CategoryId = 0
-        OR J.CategoryId = @CategoryId
-    )
-    AND
-    (
-        @EmploymentType = ''
-        OR J.EmploymentType = @EmploymentType
-    )
-    AND
-    (
-        @WorkMode = ''
-        OR J.WorkMode = @WorkMode
-    )
-    AND
-    (
-        @ExperienceMonths = 0
-        OR J.MaxExperienceMonths >= @ExperienceMonths
-    )
-ORDER BY J.CreatedAt DESC;";
-
-
-            DataTable dt = new DataTable();
-
-            using (SqlConnection con =
-                new SqlConnection(connectionString))
-            {
-                using (SqlCommand cmd =
-                    new SqlCommand(query, con))
-                {
-                    cmd.Parameters.Add(
-                        "@Search",
-                        SqlDbType.NVarChar,
-                        200
-                    ).Value = search;
-
-                    cmd.Parameters.Add(
-                        "@Location",
-                        SqlDbType.NVarChar,
-                        100
-                    ).Value = location;
-
-                    cmd.Parameters.Add(
-                        "@CategoryId",
-                        SqlDbType.Int
-                    ).Value = categoryId;
-
-                    cmd.Parameters.Add(
-                        "@EmploymentType",
-                        SqlDbType.NVarChar,
-                        50
-                    ).Value = employmentType;
-
-                    cmd.Parameters.Add(
-                        "@WorkMode",
-                        SqlDbType.NVarChar,
-                        50
-                    ).Value = workMode;
-
-                    cmd.Parameters.Add(
-                        "@ExperienceMonths",
-                        SqlDbType.Int
-                    ).Value = experienceMonths;
-
-
-                    con.Open();
-
-                    using (SqlDataAdapter da =
-                        new SqlDataAdapter(cmd))
+            const string query = @"SELECT J.JobId,J.JobTitle,J.EmploymentType,J.WorkMode,J.MinExperienceMonths,J.MaxExperienceMonths,J.MinSalary,J.MaxSalary,J.SalaryVisible,J.City,J.State,J.CreatedAt,C.CompanyName,JC.CategoryName FROM Jobs J INNER JOIN Companies C ON J.CompanyId = C.CompanyId LEFT JOIN JobCategories JC ON J.CategoryId = JC.CategoryId WHERE J.JobStatus = 'Active' AND C.IsActive = 1 AND (J.ApplicationDeadline IS NULL OR J.ApplicationDeadline >=CAST(GETDATE() AS DATE)) AND (@Search = '' OR J.JobTitle LIKE '%' + @Search + '%' OR J.JobDescription LIKE '%' + @Search + '%' OR J.Requirements LIKE '%' + @Search + '%' OR C.CompanyName LIKE '%' + @Search + '%' ) AND (@Location = '' OR J.City LIKE '%' + @Location + '%' OR J.State LIKE '%' + @Location + '%') AND (@CategoryId = 0 OR J.CategoryId = @CategoryId) AND (@EmploymentType = '' OR J.EmploymentType =@EmploymentType ) AND (@WorkMode = '' OR J.WorkMode =@WorkMode) AND (@ExperienceMonths = 0 OR J.MaxExperienceMonths >=@ExperienceMonths) ORDER BY J.CreatedAt DESC;";
+            DataTable dt =Utility._GetDataTable24(query,new SqlParameter("@Search",SqlDbType.NVarChar,200)
                     {
-                        da.Fill(dt);
+                        Value = search
+                    },
+
+                    new SqlParameter("@Location",SqlDbType.NVarChar,100)
+                    {
+                        Value = location
+                    },
+
+                    new SqlParameter("@CategoryId",SqlDbType.Int)
+                    {
+                        Value = categoryId
+                    },
+
+                    new SqlParameter("@EmploymentType",SqlDbType.NVarChar,50)
+                    {
+                        Value = employmentType
+                    },
+
+                    new SqlParameter("@WorkMode",SqlDbType.NVarChar,50)
+                    {
+                        Value = workMode
+                    },
+
+                    new SqlParameter("@ExperienceMonths",SqlDbType.Int)
+                    {
+                        Value = experienceMonths
                     }
-                }
-            }
+                );
 
 
             rptJobs.DataSource = dt;
             rptJobs.DataBind();
-
-
             int count = dt.Rows.Count;
-
             lblResultCount.Text =
                 count == 1
                     ? "1 job found"
@@ -307,6 +191,7 @@ ORDER BY J.CreatedAt DESC;";
 
             pnlNoJobs.Visible = count == 0;
         }
+
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {
@@ -372,9 +257,7 @@ ORDER BY J.CreatedAt DESC;";
         // EXPERIENCE
         // =========================================
 
-        protected string GetExperience(
-            object minValue,
-            object maxValue)
+        protected string GetExperience(object minValue,object maxValue)
         {
             int min = GetInt(minValue);
             int max = GetInt(maxValue);
@@ -420,9 +303,7 @@ ORDER BY J.CreatedAt DESC;";
         // SALARY
         // =========================================
 
-        protected string GetSalary(
-            object minValue,
-            object maxValue)
+        protected string GetSalary(object minValue,object maxValue)
         {
             decimal min = GetDecimal(minValue);
             decimal max = GetDecimal(maxValue);

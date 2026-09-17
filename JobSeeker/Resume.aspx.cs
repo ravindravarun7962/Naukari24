@@ -13,10 +13,6 @@ namespace Success24_Job_Portal.JobSeeker
 {
     public partial class Resume : System.Web.UI.Page
     {
-        private readonly string connectionString =
-       ConfigurationManager
-       .ConnectionStrings["Success24Connection"]
-       .ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -60,85 +56,77 @@ namespace Success24_Job_Portal.JobSeeker
 
             try
             {
-                using (SqlConnection con =
-                       new SqlConnection(connectionString))
-                using (SqlCommand cmd =
-                       new SqlCommand(query, con))
+                DataRow reader =
+     Utility._GetDataRow24(
+         query,
+         new SqlParameter(
+             "@JobSeekerId",
+             SqlDbType.Int
+         )
+         {
+             Value = jobSeekerId
+         }
+     );
+
+                if (reader == null)
                 {
-                    cmd.Parameters.Add(
-                        "@JobSeekerId",
-                        SqlDbType.Int
-                    ).Value =
-                        jobSeekerId;
+                    pnlCurrentResume.Visible =
+                        false;
 
+                    pnlNoResume.Visible =
+                        true;
 
-                    con.Open();
-
-
-                    using (SqlDataReader reader =
-                           cmd.ExecuteReader())
-                    {
-                        if (!reader.Read())
-                        {
-                            pnlCurrentResume.Visible =
-                                false;
-
-                            pnlNoResume.Visible =
-                                true;
-
-                            return;
-                        }
-
-
-                        pnlCurrentResume.Visible =
-                            true;
-
-                        pnlNoResume.Visible =
-                            false;
-
-
-                        lblResumeFileName.Text =
-                            Server.HtmlEncode(
-                                Convert.ToString(
-                                    reader["OriginalFileName"]
-                                )
-                            );
-
-
-                        long fileSize =
-                            Convert.ToInt64(
-                                reader["FileSize"]
-                            );
-
-
-                        DateTime uploadedAt =
-                            Convert.ToDateTime(
-                                reader["UploadedAt"]
-                            );
-
-
-                        lblResumeMeta.Text =
-                            Server.HtmlEncode(
-                                FormatFileSize(fileSize)
-                                +
-                                " • Uploaded "
-                                +
-                                uploadedAt.ToString(
-                                    "dd MMM yyyy"
-                                )
-                            );
-
-
-                        string filePath =
-                            Convert.ToString(
-                                reader["FilePath"]
-                            );
-
-
-                        lnkViewResume.NavigateUrl =
-                            ResolveUrl(filePath);
-                    }
+                    return;
                 }
+
+
+                pnlCurrentResume.Visible =
+                    true;
+
+                pnlNoResume.Visible =
+                    false;
+
+
+                lblResumeFileName.Text =
+                    Server.HtmlEncode(
+                        Convert.ToString(
+                            reader["OriginalFileName"]
+                        )
+                    );
+
+
+                long fileSize =
+                    Convert.ToInt64(
+                        reader["FileSize"]
+                    );
+
+
+                DateTime uploadedAt =
+                    Convert.ToDateTime(
+                        reader["UploadedAt"]
+                    );
+
+
+                lblResumeMeta.Text =
+                    Server.HtmlEncode(
+                        FormatFileSize(fileSize)
+                        +
+                        " • Uploaded "
+                        +
+                        uploadedAt.ToString(
+                            "dd MMM yyyy"
+                        )
+                    );
+
+
+                string filePath =
+                    Convert.ToString(
+                        reader["FilePath"]
+                    );
+
+
+                lnkViewResume.NavigateUrl =
+                    ResolveUrl(filePath);
             }
             catch
             {
@@ -189,93 +177,96 @@ namespace Success24_Job_Portal.JobSeeker
         WHERE UserId = @UserId;";
 
 
-            using (SqlConnection con =
-                   new SqlConnection(connectionString))
-            using (SqlCommand cmd =
-                   new SqlCommand(query, con))
+            object result =
+                Utility.ExecuteScalar24(
+                    query,
+                    new SqlParameter(
+                        "@UserId",
+                        SqlDbType.Int
+                    )
+                    {
+                        Value = userId
+                    }
+                );
+
+
+            if (result == null ||
+                result == DBNull.Value)
             {
-                cmd.Parameters.Add(
-                    "@UserId",
-                    SqlDbType.Int
-                ).Value = userId;
-
-
-                con.Open();
-
-
-                object result =
-                    cmd.ExecuteScalar();
-
-
-                if (result == null ||
-                    result == DBNull.Value)
-                {
-                    return 0;
-                }
-
-
-                return Convert.ToInt32(result);
+                return 0;
             }
+
+
+            return Convert.ToInt32(result);
         }
 
-        private void AddResumeParameters(
-    SqlCommand cmd,
-    int jobSeekerId,
-    string originalFileName,
-    string storedFileName,
-    string filePath,
-    string extension,
-    long fileSize)
+        private SqlParameter[] AddResumeParameters(
+     int jobSeekerId,
+     string originalFileName,
+     string storedFileName,
+     string filePath,
+     string extension,
+     long fileSize)
         {
-            cmd.Parameters.Add(
-                "@JobSeekerId",
-                SqlDbType.Int
-            ).Value =
-                jobSeekerId;
+            return new SqlParameter[]
+            {
+        new SqlParameter(
+            "@JobSeekerId",
+            SqlDbType.Int
+        )
+        {
+            Value = jobSeekerId
+        },
 
+        new SqlParameter(
+            "@OriginalFileName",
+            SqlDbType.NVarChar,
+            255
+        )
+        {
+            Value = originalFileName
+        },
 
-            cmd.Parameters.Add(
-                "@OriginalFileName",
-                SqlDbType.NVarChar,
-                255
-            ).Value =
-                originalFileName;
+        new SqlParameter(
+            "@StoredFileName",
+            SqlDbType.NVarChar,
+            255
+        )
+        {
+            Value = storedFileName
+        },
 
+        new SqlParameter(
+            "@FilePath",
+            SqlDbType.NVarChar,
+            500
+        )
+        {
+            Value = filePath
+        },
 
-            cmd.Parameters.Add(
-                "@StoredFileName",
-                SqlDbType.NVarChar,
-                255
-            ).Value =
-                storedFileName;
+        new SqlParameter(
+            "@FileExtension",
+            SqlDbType.NVarChar,
+            20
+        )
+        {
+            Value = extension
+        },
 
-
-            cmd.Parameters.Add(
-                "@FilePath",
-                SqlDbType.NVarChar,
-                500
-            ).Value =
-                filePath;
-
-
-            cmd.Parameters.Add(
-                "@FileExtension",
-                SqlDbType.NVarChar,
-                20
-            ).Value =
-                extension;
-
-
-            cmd.Parameters.Add(
-                "@FileSize",
-                SqlDbType.BigInt
-            ).Value =
-                fileSize;
+        new SqlParameter(
+            "@FileSize",
+            SqlDbType.BigInt
+        )
+        {
+            Value = fileSize
+        }
+            };
         }
         protected void btnUploadResume_Click(object sender, EventArgs e)
         {
             int jobSeekerId =
-       GetJobSeekerId();
+                            GetJobSeekerId();
 
 
             if (jobSeekerId == 0)
@@ -448,23 +439,11 @@ namespace Success24_Job_Portal.JobSeeker
                 );
 
 
-                using (SqlConnection con =
-                       new SqlConnection(connectionString))
-                {
-                    con.Open();
+                // =================================
+                // FIND EXISTING RESUME
+                // =================================
 
-
-                    SqlTransaction transaction =
-                        con.BeginTransaction();
-
-
-                    try
-                    {
-                        // =================================
-                        // FIND EXISTING RESUME
-                        // =================================
-
-                        const string existingQuery = @"
+                const string existingQuery = @"
                     SELECT TOP 1
                         FilePath
 
@@ -474,105 +453,82 @@ namespace Success24_Job_Portal.JobSeeker
                         @JobSeekerId;";
 
 
-                        using (SqlCommand cmd =
-                               new SqlCommand(
-                                   existingQuery,
-                                   con,
-                                   transaction))
+                object oldPath =
+                    Utility.ExecuteScalar24(
+                        existingQuery,
+                        new SqlParameter(
+                            "@JobSeekerId",
+                            SqlDbType.Int
+                        )
                         {
-                            cmd.Parameters.Add(
-                                "@JobSeekerId",
-                                SqlDbType.Int
-                            ).Value =
-                                jobSeekerId;
-
-
-                            object oldPath =
-                                cmd.ExecuteScalar();
-
-
-                            if (oldPath != null &&
-                                oldPath != DBNull.Value)
-                            {
-                                string oldRelativePath =
-                                    Convert.ToString(
-                                        oldPath
-                                    );
-
-
-                                if (!string.IsNullOrWhiteSpace(
-                                        oldRelativePath))
-                                {
-                                    oldPhysicalPath =
-                                        Server.MapPath(
-                                            oldRelativePath
-                                        );
-                                }
-                            }
+                            Value = jobSeekerId
                         }
+                    );
 
 
-                        // =================================
-                        // UPSERT RESUME
-                        // =================================
-
-                        const string updateQuery = @"
-                    UPDATE JobSeekerResumes
-
-                    SET
-                        OriginalFileName =
-                            @OriginalFileName,
-
-                        StoredFileName =
-                            @StoredFileName,
-
-                        FilePath =
-                            @FilePath,
-
-                        FileExtension =
-                            @FileExtension,
-
-                        FileSize =
-                            @FileSize,
-
-                        IsPrimary = 1,
-
-                        UpdatedAt =
-                            SYSDATETIME()
-
-                    WHERE JobSeekerId =
-                        @JobSeekerId;";
+                if (oldPath != null &&
+                    oldPath != DBNull.Value)
+                {
+                    string oldRelativePath =
+                        Convert.ToString(
+                            oldPath
+                        );
 
 
-                        int affected;
-
-
-                        using (SqlCommand cmd =
-                               new SqlCommand(
-                                   updateQuery,
-                                   con,
-                                   transaction))
-                        {
-                            AddResumeParameters(
-                                cmd,
-                                jobSeekerId,
-                                originalFileName,
-                                storedFileName,
-                                relativeFilePath,
-                                extension,
-                                fuResume.PostedFile
-                                    .ContentLength
+                    if (!string.IsNullOrWhiteSpace(
+                            oldRelativePath))
+                    {
+                        oldPhysicalPath =
+                            Server.MapPath(
+                                oldRelativePath
                             );
+                    }
+                }
 
 
-                            affected =
-                                cmd.ExecuteNonQuery();
-                        }
+                // =================================
+                // UPSERT RESUME
+                // =================================
 
+                const string upsertQuery = @"
+                    IF EXISTS
+                    (
+                        SELECT 1
+                        FROM JobSeekerResumes
+                        WHERE JobSeekerId = @JobSeekerId
+                    )
+                    BEGIN
 
-                        if (affected == 0)
-                        {
-                            const string insertQuery = @"
+                        UPDATE JobSeekerResumes
+
+                        SET
+                            OriginalFileName =
+                                @OriginalFileName,
+
+                            StoredFileName =
+                                @StoredFileName,
+
+                            FilePath =
+                                @FilePath,
+
+                            FileExtension =
+                                @FileExtension,
+
+                            FileSize =
+                                @FileSize,
+
+                            IsPrimary = 1,
+
+                            UpdatedAt =
+                                SYSDATETIME()
+
+                        WHERE JobSeekerId =
+                            @JobSeekerId;
+
+                    END
+                    ELSE
+                    BEGIN
+
                         INSERT INTO JobSeekerResumes
                         (
                             JobSeekerId,
@@ -595,47 +551,23 @@ namespace Success24_Job_Portal.JobSeeker
                             @FileSize,
                             1,
                             SYSDATETIME()
-                        );";
+                        );
+
+                    END;";
 
 
-                            using (SqlCommand cmd =
-                                   new SqlCommand(
-                                       insertQuery,
-                                       con,
-                                       transaction))
-                            {
-                                AddResumeParameters(
-                                    cmd,
-                                    jobSeekerId,
-                                    originalFileName,
-                                    storedFileName,
-                                    relativeFilePath,
-                                    extension,
-                                    fuResume.PostedFile
-                                        .ContentLength
-                                );
-
-
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-
-
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            transaction.Rollback();
-                        }
-                        catch
-                        {
-                        }
-
-                        throw;
-                    }
-                }
+                Utility.ExecuteQuery24(
+                    upsertQuery,
+                    AddResumeParameters(
+                        jobSeekerId,
+                        originalFileName,
+                        storedFileName,
+                        relativeFilePath,
+                        extension,
+                        fuResume.PostedFile
+                            .ContentLength
+                    )
+                );
 
 
                 // =========================================
@@ -699,12 +631,13 @@ namespace Success24_Job_Portal.JobSeeker
                     false
                 );
             }
+
         }
 
         protected void btnDeleteResume_Click(object sender, EventArgs e)
         {
             int jobSeekerId =
-       GetJobSeekerId();
+                            GetJobSeekerId();
 
 
             if (jobSeekerId == 0)
@@ -719,19 +652,7 @@ namespace Success24_Job_Portal.JobSeeker
 
             try
             {
-                using (SqlConnection con =
-                       new SqlConnection(connectionString))
-                {
-                    con.Open();
-
-
-                    SqlTransaction transaction =
-                        con.BeginTransaction();
-
-
-                    try
-                    {
-                        const string selectQuery = @"
+                const string selectQuery = @"
                     SELECT TOP 1
                         FilePath
 
@@ -741,86 +662,71 @@ namespace Success24_Job_Portal.JobSeeker
                         @JobSeekerId;";
 
 
-                        using (SqlCommand cmd =
-                               new SqlCommand(
-                                   selectQuery,
-                                   con,
-                                   transaction))
+                object result =
+                    Utility.ExecuteScalar24(
+                        selectQuery,
+                        new SqlParameter(
+                            "@JobSeekerId",
+                            SqlDbType.Int
+                        )
                         {
-                            cmd.Parameters.Add(
-                                "@JobSeekerId",
-                                SqlDbType.Int
-                            ).Value =
-                                jobSeekerId;
-
-
-                            object result =
-                                cmd.ExecuteScalar();
-
-
-                            if (result == null ||
-                                result == DBNull.Value)
-                            {
-                                transaction.Rollback();
-
-                                ShowMessage(
-                                    "Resume was not found.",
-                                    false
-                                );
-
-                                LoadResume();
-
-                                return;
-                            }
-
-
-                            physicalPath =
-                                Server.MapPath(
-                                    Convert.ToString(
-                                        result
-                                    )
-                                );
+                            Value = jobSeekerId
                         }
+                    );
 
 
-                        const string deleteQuery = @"
+                if (result == null ||
+                    result == DBNull.Value)
+                {
+                    ShowMessage(
+                        "Resume was not found.",
+                        false
+                    );
+
+                    LoadResume();
+
+                    return;
+                }
+
+
+                physicalPath =
+                    Server.MapPath(
+                        Convert.ToString(
+                            result
+                        )
+                    );
+
+
+                const string deleteQuery = @"
                     DELETE FROM JobSeekerResumes
 
                     WHERE JobSeekerId =
                         @JobSeekerId;";
 
 
-                        using (SqlCommand cmd =
-                               new SqlCommand(
-                                   deleteQuery,
-                                   con,
-                                   transaction))
+                int affected =
+                    Utility.ExecuteQuery24(
+                        deleteQuery,
+                        new SqlParameter(
+                            "@JobSeekerId",
+                            SqlDbType.Int
+                        )
                         {
-                            cmd.Parameters.Add(
-                                "@JobSeekerId",
-                                SqlDbType.Int
-                            ).Value =
-                                jobSeekerId;
-
-
-                            cmd.ExecuteNonQuery();
+                            Value = jobSeekerId
                         }
+                    );
 
 
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            transaction.Rollback();
-                        }
-                        catch
-                        {
-                        }
+                if (affected <= 0)
+                {
+                    ShowMessage(
+                        "Resume was not found.",
+                        false
+                    );
 
-                        throw;
-                    }
+                    LoadResume();
+
+                    return;
                 }
 
 
@@ -856,6 +762,7 @@ namespace Success24_Job_Portal.JobSeeker
                     false
                 );
             }
+
         }
 
         private string FormatFileSize(
@@ -904,7 +811,7 @@ namespace Success24_Job_Portal.JobSeeker
         protected void btnDownloadResume_Click(object sender, EventArgs e)
         {
             int jobSeekerId =
-    GetJobSeekerId();
+                            GetJobSeekerId();
 
 
             if (jobSeekerId == 0)
@@ -937,53 +844,46 @@ namespace Success24_Job_Portal.JobSeeker
                     "";
 
 
-                using (SqlConnection con =
-                       new SqlConnection(connectionString))
-                using (SqlCommand cmd =
-                       new SqlCommand(query, con))
-                {
-                    cmd.Parameters.Add(
-                        "@JobSeekerId",
-                        SqlDbType.Int
-                    ).Value =
-                        jobSeekerId;
-
-
-                    con.Open();
-
-
-                    using (SqlDataReader reader =
-                           cmd.ExecuteReader())
-                    {
-                        if (!reader.Read())
+                DataRow reader =
+                    Utility._GetDataRow24(
+                        query,
+                        new SqlParameter(
+                            "@JobSeekerId",
+                            SqlDbType.Int
+                        )
                         {
-                            ShowMessage(
-                                "Resume was not found.",
-                                false
-                            );
-
-                            return;
+                            Value = jobSeekerId
                         }
+                    );
 
 
-                        originalFileName =
-                            Convert.ToString(
-                                reader["OriginalFileName"]
-                            );
+                if (reader == null)
+                {
+                    ShowMessage(
+                        "Resume was not found.",
+                        false
+                    );
 
-
-                        filePath =
-                            Convert.ToString(
-                                reader["FilePath"]
-                            );
-
-
-                        extension =
-                            Convert.ToString(
-                                reader["FileExtension"]
-                            );
-                    }
+                    return;
                 }
+
+
+                originalFileName =
+                    Convert.ToString(
+                        reader["OriginalFileName"]
+                    );
+
+
+                filePath =
+                    Convert.ToString(
+                        reader["FilePath"]
+                    );
+
+
+                extension =
+                    Convert.ToString(
+                        reader["FileExtension"]
+                    );
 
 
                 string physicalPath =
@@ -1058,6 +958,8 @@ namespace Success24_Job_Portal.JobSeeker
                     false
                 );
             }
+
+
 
         }
     }

@@ -91,18 +91,24 @@
     <Content Include="Assets\css\jobseeker-profile.css" />
     <Content Include="Assets\css\jobseeker.css" />
     <Content Include="Assets\css\site.css" />
+    <Content Include="Career\CareerAdvice.aspx" />
     <Content Include="Companies.aspx" />
     <Content Include="Contact.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="Career\InterviewTips.aspx" />
     <Content Include="JobDetails.aspx" />
     <Content Include="Jobs.aspx" />
+    <Content Include="JobSeeker\Applications.aspx" />
     <Content Include="JobSeeker\Dashboard.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="JobSeekerRegister.aspx" />
     <Content Include="JobSeeker\EditProfile.aspx" />
+    <Content Include="JobSeeker\Interviews.aspx" />
+    <Content Include="JobSeeker\SavedJobs.aspx" />
     <Content Include="PrivacyPolicy.aspx" />
     <Content Include="Recruiter\ApplicantDetails.aspx" />
     <Content Include="Recruiter\Applications.aspx" />
+    <Content Include="Recruiter\CandidateProfile.aspx" />
     <Content Include="Recruiter\CompanyProfile.aspx" />
     <Content Include="Recruiter\JobDetails.aspx" />
     <Content Include="Recruiter\Jobs.aspx" />
@@ -116,6 +122,7 @@
     <Content Include="Recruiter\RecruiterRegister.aspx" />
     <Content Include="Recruiter\SearchCandidates.aspx" />
     <Content Include="Register.aspx" />
+    <Content Include="Career\ResumeTips.aspx" />
     <Content Include="TermsAndConditions.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -126,6 +133,13 @@
     </Compile>
     <Compile Include="AboutUs.aspx.designer.cs">
       <DependentUpon>AboutUs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Career\CareerAdvice.aspx.cs">
+      <DependentUpon>CareerAdvice.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Career\CareerAdvice.aspx.designer.cs">
+      <DependentUpon>CareerAdvice.aspx</DependentUpon>
     </Compile>
     <Compile Include="Companies.aspx.cs">
       <DependentUpon>Companies.aspx</DependentUpon>
@@ -144,6 +158,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Career\InterviewTips.aspx.cs">
+      <DependentUpon>InterviewTips.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Career\InterviewTips.aspx.designer.cs">
+      <DependentUpon>InterviewTips.aspx</DependentUpon>
+    </Compile>
     <Compile Include="JobDetails.aspx.cs">
       <DependentUpon>JobDetails.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -157,6 +178,13 @@
     </Compile>
     <Compile Include="Jobs.aspx.designer.cs">
       <DependentUpon>Jobs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="JobSeeker\Applications.aspx.cs">
+      <DependentUpon>Applications.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="JobSeeker\Applications.aspx.designer.cs">
+      <DependentUpon>Applications.aspx</DependentUpon>
     </Compile>
     <Compile Include="JobSeeker\Dashboard.aspx.cs">
       <DependentUpon>Dashboard.aspx</DependentUpon>
@@ -186,6 +214,20 @@
     <Compile Include="JobSeeker\EditProfile.aspx.designer.cs">
       <DependentUpon>EditProfile.aspx</DependentUpon>
     </Compile>
+    <Compile Include="JobSeeker\Interviews.aspx.cs">
+      <DependentUpon>Interviews.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="JobSeeker\Interviews.aspx.designer.cs">
+      <DependentUpon>Interviews.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="JobSeeker\SavedJobs.aspx.cs">
+      <DependentUpon>SavedJobs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="JobSeeker\SavedJobs.aspx.designer.cs">
+      <DependentUpon>SavedJobs.aspx</DependentUpon>
+    </Compile>
     <Compile Include="PrivacyPolicy.aspx.cs">
       <DependentUpon>PrivacyPolicy.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -206,6 +248,13 @@
     </Compile>
     <Compile Include="Recruiter\Applications.aspx.designer.cs">
       <DependentUpon>Applications.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Recruiter\CandidateProfile.aspx.cs">
+      <DependentUpon>CandidateProfile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Recruiter\CandidateProfile.aspx.designer.cs">
+      <DependentUpon>CandidateProfile.aspx</DependentUpon>
     </Compile>
     <Compile Include="Recruiter\CompanyProfile.aspx.cs">
       <DependentUpon>CompanyProfile.aspx</DependentUpon>
@@ -313,6 +362,13 @@
     <Compile Include="Register.aspx.designer.cs">
       <DependentUpon>Register.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Career\ResumeTips.aspx.cs">
+      <DependentUpon>ResumeTips.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Career\ResumeTips.aspx.designer.cs">
+      <DependentUpon>ResumeTips.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Site.Master.cs">
       <DependentUpon>Site.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -327,6 +383,7 @@
     <Compile Include="TermsAndConditions.aspx.designer.cs">
       <DependentUpon>TermsAndConditions.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="JobSeeker\JobSeeker.Master" />

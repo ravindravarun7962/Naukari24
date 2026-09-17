@@ -1289,7 +1289,7 @@
 
 
                         <a
-                            href="Profile.aspx"
+                            href="RecruiterProfile.aspx"
                             class="quick-action">
 
                             <div class="quick-action-icon">
