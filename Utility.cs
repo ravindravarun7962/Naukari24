@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
+using System.Net.Mail;
+using System.Text;
 using System.Web.UI.WebControls;
 namespace Success24_Job_Portal
 {
@@ -63,7 +65,38 @@ namespace Success24_Job_Portal
                 }
             }
         }
+        // =========================================================
+        // Email Sending method
+        // =========================================================
+        public static bool SendEmail(string toEmail,string subject,string body,bool isHtml = true)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(toEmail))
+                {
+                    return false;
+                }
 
+                using (MailMessage mail = new MailMessage())
+                {
+                    mail.To.Add(toEmail);
+                    mail.Subject = subject;
+                    mail.Body = body;
+                    mail.IsBodyHtml = isHtml;
+
+                    using (SmtpClient smtp = new SmtpClient())
+                    {
+                        smtp.Send(mail);
+                    }
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         // =========================================================
         // CHECKBOX LIST
@@ -252,7 +285,55 @@ namespace Success24_Job_Portal
             return null;
         }
 
-       
+        public static string CreateSlug(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
+
+            text = text.Trim().ToLowerInvariant();
+
+            text = text.Replace("&", "and");
+            text = text.Replace("+", "plus");
+            text = text.Replace("/", "-");
+            text = text.Replace("\\", "-");
+            text = text.Replace(".", "");
+
+            StringBuilder result = new StringBuilder();
+            bool previousWasDash = false;
+
+            foreach (char c in text)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    result.Append(c);
+                    previousWasDash = false;
+                }
+                else
+                {
+                    if (!previousWasDash && result.Length > 0)
+                    {
+                        result.Append('-');
+                        previousWasDash = true;
+                    }
+                }
+            }
+
+            return result.ToString().Trim('-');
+        }
+
+        public static string GetJobDetailsUrl(object cityObject,object companyObject,object jobTitleObject)
+        {
+            string city = Convert.ToString(cityObject).Trim();
+            string company = Convert.ToString(companyObject).Trim();
+            string jobTitle = Convert.ToString(jobTitleObject).Trim();
+
+            return string.Format(
+                "/{0}/{1}/Jobs/{2 }",
+                CreateSlug(city),
+                CreateSlug(company),
+                CreateSlug(jobTitle)
+            );
+        }
         public static int ExecuteTransaction24(string FirstQuery,SqlParameter[] FirstParameters,string SecondQuery,SqlParameter[] SecondParameters)
         {
             using (SqlConnection con = new SqlConnection(Success24ConnectionString))

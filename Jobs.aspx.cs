@@ -104,24 +104,18 @@ namespace Success24_Job_Portal
         }
 
 
-
-        protected string GetJobDetailsUrl(object cityObject,object companyObject,object jobTitleObject)
+        protected string GetJobDetailsUrl(
+            object cityObject,
+            object stateObject,
+            object companyObject,
+            object jobTitleObject)
         {
-            string city = Convert.ToString(cityObject).Trim();
-            string company = Convert.ToString(companyObject).Trim();
-            string jobTitle = Convert.ToString(jobTitleObject).Trim();
-            return GetRouteUrl(
-                "JobDetailsClean",
-                new
-                {
-                    city = CreateCitySlug(city),
-                    company = CreateCompanySlug(company),
-                    position = CreatePositionSlug(jobTitle)
-                }
+            return Utility.GetJobDetailsUrl(
+                Convert.ToString(cityObject),
+                Convert.ToString(companyObject),
+                Convert.ToString(jobTitleObject)
             );
         }
-
-
 
         // =========================================
         // LOAD JOBS
@@ -192,6 +186,7 @@ namespace Success24_Job_Portal
             pnlNoJobs.Visible = count == 0;
         }
 
+     
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {

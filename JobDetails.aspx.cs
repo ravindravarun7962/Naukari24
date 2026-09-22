@@ -13,12 +13,41 @@ namespace Success24_Job_Portal
             {
                 int jobId;
 
-                if (int.TryParse(Request.QueryString["JobId"],out jobId))
+                // Old URL support:
+                // JobDetails.aspx?JobId=123
+                if (int.TryParse(Request.QueryString["JobId"], out jobId))
                 {
                     return jobId;
                 }
 
-                return 0;
+                // Clean URL:
+                // /Noida/Delhi-NCR/Orbex_Technologies_Private_Limited/Jobs/Data-Scientist
+
+                string city = Convert.ToString(
+                    Page.RouteData.Values["city"]);
+
+                string state = Convert.ToString(
+                    Page.RouteData.Values["state"]);
+
+                string company = Convert.ToString(
+                    Page.RouteData.Values["company"]);
+
+                string position = Convert.ToString(
+                    Page.RouteData.Values["position"]);
+
+                if (string.IsNullOrWhiteSpace(city) ||
+                    string.IsNullOrWhiteSpace(state) ||
+                    string.IsNullOrWhiteSpace(company) ||
+                    string.IsNullOrWhiteSpace(position))
+                {
+                    return 0;
+                }
+
+                return FindJobId(
+                    city,
+                    state,
+                    company,
+                    position);
             }
         }
         protected void Page_Load(object sender, EventArgs e)
@@ -66,7 +95,116 @@ namespace Success24_Job_Portal
             }
         }
 
+        private int FindJobId(
+     string city,
+     string state,
+     string company,
+     string position)
+        {
+            const string query = @"
+        SELECT
+            J.JobId,
+            J.JobTitle,
+            J.City,
+            J.State,
+            C.CompanyName
+        FROM Jobs J
+        INNER JOIN Companies C
+            ON J.CompanyId = C.CompanyId
+        WHERE
+            J.JobStatus = 'Active'
+            AND C.IsActive = 1
+            AND (
+                J.ApplicationDeadline IS NULL
+                OR J.ApplicationDeadline >= CAST(GETDATE() AS DATE)
+            )
+        ORDER BY J.CreatedAt DESC;
+    ";
 
+            DataTable dt = Utility._GetDataTable24(query);
+
+            if (dt.Rows.Count == 0)
+            {
+                return 0;
+            }
+
+            foreach (DataRow row in dt.Rows)
+            {
+                string dbCity = Convert.ToString(row["City"]).Trim();
+                string dbState = Convert.ToString(row["State"]).Trim();
+                string dbCompany = Convert.ToString(row["CompanyName"]).Trim();
+                string dbJobTitle = Convert.ToString(row["JobTitle"]).Trim();
+
+                string dbCitySlug = CreateSlug(dbCity);
+                string dbStateSlug = CreateSlug(dbState);
+                string dbCompanySlug = CreateSlug(dbCompany);
+                string dbPositionSlug = CreateSlug(dbJobTitle);
+
+                bool cityMatches = string.Equals(
+                    dbCitySlug,
+                    city,
+                    StringComparison.OrdinalIgnoreCase);
+
+                bool stateMatches = string.Equals(
+                    dbStateSlug,
+                    state,
+                    StringComparison.OrdinalIgnoreCase);
+
+                bool companyMatches = string.Equals(
+                    dbCompanySlug,
+                    company,
+                    StringComparison.OrdinalIgnoreCase);
+
+                bool positionMatches = string.Equals(
+                    dbPositionSlug,
+                    position,
+                    StringComparison.OrdinalIgnoreCase);
+
+                if (cityMatches &&
+                    stateMatches &&
+                    companyMatches &&
+                    positionMatches)
+                {
+                    return Convert.ToInt32(row["JobId"]);
+                }
+            }
+
+            return 0;
+        }
+
+        private string CreateSlug(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
+
+            text = text.Trim().ToLowerInvariant();
+
+            System.Text.StringBuilder result =
+                new System.Text.StringBuilder();
+
+            bool previousWasDash = false;
+
+            foreach (char c in text)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    result.Append(c);
+                    previousWasDash = false;
+                }
+                else
+                {
+                    if (!previousWasDash && result.Length > 0)
+                    {
+                        result.Append('-');
+                        previousWasDash = true;
+                    }
+                }
+            }
+
+            return result
+                .ToString()
+                .Trim('-');
+        }
         // =========================================
         // BIND JOB DETAILS
         // =========================================
@@ -544,6 +682,7 @@ namespace Success24_Job_Portal
 
             return 0;
         }
+
 
 
         // =========================================

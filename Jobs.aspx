@@ -679,7 +679,7 @@
                                  <a
                                     href='<%# GetJobDetailsUrl(
                                         Eval("City"),
-                                        Eval("CompanyName"),
+                                         Eval("CompanyName"),
                                         Eval("JobTitle")
                                     ) %>'
                                     class="job-view-btn">
