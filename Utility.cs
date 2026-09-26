@@ -328,7 +328,7 @@ namespace Success24_Job_Portal
             string jobTitle = Convert.ToString(jobTitleObject).Trim();
 
             return string.Format(
-                "/{0}/{1}/Jobs/{2 }",
+                "/{0}/{1}/Jobs/{2}",
                 CreateSlug(city),
                 CreateSlug(company),
                 CreateSlug(jobTitle)

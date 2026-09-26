@@ -106,7 +106,6 @@ namespace Success24_Job_Portal
 
         protected string GetJobDetailsUrl(
             object cityObject,
-            object stateObject,
             object companyObject,
             object jobTitleObject)
         {

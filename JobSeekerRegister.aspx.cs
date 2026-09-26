@@ -2,11 +2,12 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
+using System.Text.RegularExpressions;
 using System.Web.UI.WebControls;
 
 namespace Success24_Job_Portal
 {
-    public partial class JobSeekerRegister : System.Web.UI.Page
+    public partial class JobSeekerRegister : Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -25,6 +26,7 @@ namespace Success24_Job_Portal
             string email = txtEmail.Text.Trim().ToLowerInvariant();
             string mobile = txtMobile.Text.Trim();
             string password = txtPassword.Text;
+            string confirmPassword = txtConfirmPassword.Text;
 
             // =========================================
             // TERMS CHECK
@@ -41,18 +43,67 @@ namespace Success24_Job_Portal
 
 
             // =========================================
-            // EXTRA SERVER-SIDE PASSWORD CHECK
+            // FULL NAME VALIDATION
             // =========================================
 
-            if (password.Length < 8)
+            if (!Regex.IsMatch(fullName, @"^[A-Za-z]+(?:\s+[A-Za-z]+)*$"))
+            {
+                ShowError("Full name must contain alphabets and spaces only.");
+                return;
+            }
+
+
+            // =========================================
+            // EMAIL VALIDATION
+            // =========================================
+
+            if (!Regex.IsMatch(
+                email,
+                @"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"))
+            {
+                ShowError("Please enter a valid email address.");
+                return;
+            }
+
+
+            // =========================================
+            // MOBILE VALIDATION
+            // =========================================
+
+            if (!Regex.IsMatch(mobile, @"^[6-9][0-9]{9}$"))
+            {
+                ShowError("Please enter a valid 10-digit mobile number.");
+                return;
+            }
+
+
+            // =========================================
+            // PASSWORD VALIDATION
+            // =========================================
+
+            if (!Regex.IsMatch(
+                password,
+                @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,100}$"))
             {
                 ShowError(
-                    "Password must contain at least 8 characters."
+                    "Password must contain at least 8 characters, including uppercase, lowercase, number and special character."
                 );
 
                 return;
             }
 
+            // =========================================
+            // CONFIRM PASSWORD
+            // =========================================
+
+            if (password != confirmPassword)
+            {
+                ShowError(
+                    "Passwords do not match."
+                );
+
+                return;
+            }
 
             try
             {
